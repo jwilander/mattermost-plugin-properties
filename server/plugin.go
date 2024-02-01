@@ -7,6 +7,7 @@ import (
 
 	"github.com/jwilander/mattermost-plugin-properties/server/app"
 	"github.com/jwilander/mattermost-plugin-properties/server/sqlstore"
+
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
@@ -39,10 +40,10 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	propertyStore := sqlstore.NewPropertyStore(apiClient, sqlStore)
+	//propertyFieldStore := sqlstore.NewPropertyFieldStore(apiClient, sqlStore)
 
 	p.propertyService = app.NewPropertyService(propertyStore, pluginAPIClient)
 
-	fmt.Println("plugin activated")
 	mutex, err := cluster.NewMutex(p.API, "PROP_dbMutex")
 	if err != nil {
 		return errors.Wrapf(err, "failed creating cluster mutex")

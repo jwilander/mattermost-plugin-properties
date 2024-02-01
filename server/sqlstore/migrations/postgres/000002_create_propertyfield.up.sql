@@ -2,5 +2,5 @@ CREATE TABLE IF NOT EXISTS PROP_PropertyField (
     ID TEXT PRIMARY KEY,
     Name TEXT NOT NULL UNIQUE,
     Type TEXT NOT NULL,
-    ValuesJSON JSON NOT NULL
+    Values JSON
 );
