@@ -1,10 +1,11 @@
 package app
 
 type Property struct {
-	ID              string        `json:"id"`
-	ObjectID        string        `json:"object_id"`
-	PropertyFieldID string        `json:"property_field_id"`
-	Value           []interface{} `json:"value" db:"-"`
+	ID                string        `json:"id"`
+	ObjectID          string        `json:"object_id"`
+	PropertyFieldID   string        `json:"property_field_id"`
+	PropertyFieldName string        `json:"property_field_name"`
+	Value             []interface{} `json:"value" db:"-"`
 }
 
 type PropertyStore interface {
@@ -13,4 +14,6 @@ type PropertyStore interface {
 }
 
 type PropertyService interface {
+	Create(property Property) (string, error)
+	GetForObject(objectID string) ([]Property, error)
 }

@@ -23,9 +23,10 @@ type Plugin struct {
 
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
-	configuration   *configuration
-	pluginAPI       *pluginapi.Client
-	propertyService app.PropertyService
+	configuration        *configuration
+	pluginAPI            *pluginapi.Client
+	propertyService      app.PropertyService
+	propertyFieldService app.PropertyFieldService
 }
 
 func (p *Plugin) OnActivate() error {
@@ -39,10 +40,11 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrapf(err, "failed creating the SQL store")
 	}
 
+	propertyFieldStore := sqlstore.NewPropertyFieldStore(apiClient, sqlStore)
 	propertyStore := sqlstore.NewPropertyStore(apiClient, sqlStore)
-	//propertyFieldStore := sqlstore.NewPropertyFieldStore(apiClient, sqlStore)
 
-	p.propertyService = app.NewPropertyService(propertyStore, pluginAPIClient)
+	p.propertyFieldService = app.NewPropertyFieldService(propertyFieldStore, pluginAPIClient)
+	p.propertyService = app.NewPropertyService(propertyStore, p.propertyFieldService, pluginAPIClient)
 
 	mutex, err := cluster.NewMutex(p.API, "PROP_dbMutex")
 	if err != nil {

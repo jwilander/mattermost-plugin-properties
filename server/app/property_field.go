@@ -13,4 +13,6 @@ type PropertyFieldStore interface {
 }
 
 type PropertyFieldService interface {
+	Get(id string) (PropertyField, error)
+	Create(propertyField PropertyField) (string, error)
 }
