@@ -31,6 +31,7 @@ func NewPropertyStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.Propert
 		Select(
 			"p.ID",
 			"p.ObjectID",
+			"p.ObjectType",
 			"p.PropertyFieldID",
 			"p.Value",
 			"pf.Name as PropertyFieldName",
@@ -68,6 +69,7 @@ func (p *propertyStore) Create(property app.Property) (id string, err error) {
 		SetMap(map[string]interface{}{
 			"ID":              rawProperty.ID,
 			"ObjectID":        rawProperty.ObjectID,
+			"ObjectType":      rawProperty.ObjectType,
 			"PropertyFieldID": rawProperty.PropertyFieldID,
 			"Value":           rawProperty.ValueJSON,
 		}))

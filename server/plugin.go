@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"sync"
 
+	root "github.com/jwilander/mattermost-plugin-properties"
+	"github.com/jwilander/mattermost-plugin-properties/server/api"
 	"github.com/jwilander/mattermost-plugin-properties/server/app"
+	"github.com/jwilander/mattermost-plugin-properties/server/config"
 	"github.com/jwilander/mattermost-plugin-properties/server/sqlstore"
 
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -18,20 +19,20 @@ import (
 type Plugin struct {
 	plugin.MattermostPlugin
 
-	// configurationLock synchronizes access to the configuration.
-	configurationLock sync.RWMutex
-
-	// configuration is the active plugin configuration. Consult getConfiguration and
-	// setConfiguration for usage.
-	configuration        *configuration
+	handler              *api.Handler
+	config               *config.ServiceImpl
 	pluginAPI            *pluginapi.Client
 	propertyService      app.PropertyService
 	propertyFieldService app.PropertyFieldService
+	permissions          *app.PermissionsService
 }
 
 func (p *Plugin) OnActivate() error {
+
 	pluginAPIClient := pluginapi.NewClient(p.API, p.Driver)
 	p.pluginAPI = pluginAPIClient
+
+	p.config = config.NewConfigService(pluginAPIClient, &root.Manifest)
 
 	apiClient := sqlstore.NewClient(pluginAPIClient)
 
@@ -57,12 +58,22 @@ func (p *Plugin) OnActivate() error {
 	}
 	mutex.Unlock()
 
+	p.handler = api.NewHandler(pluginAPIClient, p.config)
+	p.permissions = app.NewPermissionsService(p.propertyService, p.propertyFieldService, pluginAPIClient, p.config)
+
+	api.NewPropertyHandler(
+		p.handler.APIRouter,
+		p.propertyService,
+		pluginAPIClient,
+		p.config,
+		p.permissions,
+	)
+
 	return nil
 }
 
-// ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello, world!")
+	p.handler.ServeHTTP(w, r)
 }
 
 // See https://developers.mattermost.com/extend/plugins/server/reference/

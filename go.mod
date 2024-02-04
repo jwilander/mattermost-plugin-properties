@@ -4,8 +4,8 @@ go 1.19
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/gorilla/mux v1.8.1
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/mattermost/mattermost-plugin-api v0.1.4
 	github.com/mattermost/mattermost-plugin-playbooks v1.39.1
 	github.com/mattermost/mattermost-server/v6 v6.7.2
 	github.com/mattermost/mattermost/server/public v0.0.12
@@ -44,6 +44,7 @@ require (
 	github.com/mattermost/go-i18n v1.11.1-0.20211013152124-5c415071e404 // indirect
 	github.com/mattermost/ldap v0.0.0-20231116144001-0f480c025956 // indirect
 	github.com/mattermost/logr/v2 v2.0.21 // indirect
+	github.com/mattermost/mattermost-plugin-api v0.1.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
