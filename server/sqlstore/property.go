@@ -114,6 +114,37 @@ func (p *propertyStore) GetByObjectID(objectID string) ([]app.Property, error) {
 	return properties, nil
 }
 
+func (p *propertyStore) UpdateValue(id string, value []interface{}) error {
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	property := app.Property{ID: id, Value: value}
+	rawProperty, err := toSQLProperty(property)
+	if err != nil {
+		return err
+	}
+
+	_, err = p.store.execBuilder(tx, sq.
+		Update("PROP_Property").
+		SetMap(map[string]interface{}{
+			"Value": rawProperty.ValueJSON,
+		}).
+		Where(sq.Eq{"ID": id}))
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to update value of property with id '%s'", id)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return errors.Wrap(err, "could not commit transaction")
+	}
+
+	return nil
+}
+
 func toSQLProperty(property app.Property) (*sqlProperty, error) {
 	valueJSON, err := json.Marshal(property.Value)
 	if err != nil {

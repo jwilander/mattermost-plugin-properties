@@ -17,9 +17,11 @@ const (
 type PropertyStore interface {
 	GetByObjectID(objectID string) ([]Property, error)
 	Create(property Property) (string, error)
+	UpdateValue(id string, value []interface{}) error
 }
 
 type PropertyService interface {
 	Create(property Property) (string, error)
 	GetForObject(objectID string) ([]Property, error)
+	UpdateValue(id string, value []interface{}) error
 }

@@ -54,3 +54,7 @@ func (ps *propertyService) Create(property Property) (string, error) {
 func (ps *propertyService) GetForObject(objectID string) ([]Property, error) {
 	return ps.store.GetByObjectID(objectID)
 }
+
+func (ps *propertyService) UpdateValue(id string, value []interface{}) error {
+	return ps.store.UpdateValue(id, value)
+}

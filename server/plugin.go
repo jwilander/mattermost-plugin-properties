@@ -69,6 +69,14 @@ func (p *Plugin) OnActivate() error {
 		p.permissions,
 	)
 
+	api.NewPropertyFieldHandler(
+		p.handler.APIRouter,
+		p.propertyFieldService,
+		pluginAPIClient,
+		p.config,
+		p.permissions,
+	)
+
 	return nil
 }
 

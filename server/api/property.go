@@ -34,6 +34,7 @@ func NewPropertyHandler(router *mux.Router, propertyService app.PropertyService,
 	propertyRouter := router.PathPrefix("/property").Subrouter()
 
 	propertyRouter.HandleFunc("", withContext(handler.createProperty)).Methods(http.MethodPost)
+	propertyRouter.HandleFunc("", withContext(handler.updateProperty)).Methods(http.MethodPut)
 
 	return handler
 }
@@ -57,6 +58,8 @@ func (h *PropertyHandler) validProperty(w http.ResponseWriter, logger logrus.Fie
 		return false
 	}
 
+	//TODO: implement validate value
+
 	return true
 }
 
@@ -69,7 +72,7 @@ func (h *PropertyHandler) createProperty(c *Context, w http.ResponseWriter, r *h
 	}
 
 	if property.ID != "" {
-		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "Property given already has ID", nil)
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be blank", nil)
 		return
 	}
 
@@ -95,4 +98,38 @@ func (h *PropertyHandler) createProperty(c *Context, w http.ResponseWriter, r *h
 	w.Header().Add("Location", makeAPIURL(h.pluginAPI, "property/%s", id))
 
 	ReturnJSON(w, &result, http.StatusCreated)
+}
+
+type UpdatePropertyValue struct {
+	ID    string        `json:"id"`
+	Value []interface{} `json:"value"`
+}
+
+func (h *PropertyHandler) updateProperty(c *Context, w http.ResponseWriter, r *http.Request) {
+	//userID := r.Header.Get("Mattermost-User-ID")
+	var update UpdatePropertyValue
+	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "unable to decode property", err)
+		return
+	}
+
+	if update.ID == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be set", nil)
+		return
+	}
+
+	//TODO: implement validate value
+
+	//TODO: implement permission check for property update
+	/*if !h.PermissionsCheck(w, c.logger, h.permissions.PropertyUpdate(userID, property)) {
+		return
+	}*/
+
+	err := h.propertyService.UpdateValue(update.ID, update.Value)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

@@ -7,6 +7,11 @@ type PropertyField struct {
 	Values []interface{} `json:"values" db:"-"`
 }
 
+const (
+	PropertyFieldTypeText   = "text"
+	PropertyFieldTypeSelect = "select"
+)
+
 type PropertyFieldStore interface {
 	Get(id string) (PropertyField, error)
 	Create(propertyField PropertyField) (string, error)
