@@ -3,6 +3,8 @@ package sqlstore
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/jwilander/mattermost-plugin-properties/server/app"
 
@@ -105,6 +107,60 @@ func (p *propertyFieldStore) Get(id string) (app.PropertyField, error) {
 	}
 
 	return propertyField, nil
+}
+
+func (p *propertyFieldStore) GetFields(filter app.PropertyFieldFilterOptions) ([]app.PropertyField, error) {
+	queryForResults := p.store.builder.
+		Select(
+			"p.ID",
+			"p.Name",
+			"p.Type",
+			"p.Values",
+		).
+		From("PROP_PropertyField AS p")
+
+	if filter.SearchTerm != "" {
+		column := "p.Name"
+		searchString := filter.SearchTerm
+
+		// Postgres performs a case-sensitive search, so we need to lowercase
+		// both the column contents and the search string
+		if p.store.db.DriverName() == model.DatabaseDriverPostgres {
+			column = "LOWER(p.Name)"
+			searchString = strings.ToLower(filter.SearchTerm)
+		}
+
+		queryForResults = queryForResults.Where(sq.Like{column: fmt.Sprint("%", searchString, "%")})
+	}
+
+	page := filter.Page
+	perPage := filter.PerPage
+	if page < 0 {
+		page = 0
+	}
+	if perPage < 0 {
+		perPage = 0
+	}
+
+	queryForResults = queryForResults.
+		Offset(uint64(page * perPage)).
+		Limit(uint64(perPage))
+
+	var rawFields []sqlPropertyField
+	err := p.store.selectBuilder(p.store.db, &rawFields, queryForResults)
+	if err != nil && err != sql.ErrNoRows {
+		return []app.PropertyField{}, errors.Wrap(err, "failed to get property fields")
+	}
+
+	fields := make([]app.PropertyField, len(rawFields))
+	for index, f := range rawFields {
+		fields[index], err = toPropertyField(f)
+		if err != nil {
+			return nil, errors.Wrapf(err, "can't convert raw property field to property field type")
+		}
+	}
+
+	return fields, nil
 }
 
 func toSQLPropertyField(propertyField app.PropertyField) (*sqlPropertyField, error) {

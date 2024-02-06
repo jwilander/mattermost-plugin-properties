@@ -34,6 +34,7 @@ func NewPropertyFieldHandler(router *mux.Router, propertyFieldService app.Proper
 	propertyFieldRouter := router.PathPrefix("/field").Subrouter()
 
 	propertyFieldRouter.HandleFunc("", withContext(handler.createPropertyField)).Methods(http.MethodPost)
+	propertyFieldRouter.HandleFunc("/autocomplete", withContext(handler.getPropertyFieldsAutoComplete)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -107,4 +108,23 @@ func (h *PropertyFieldHandler) createPropertyField(c *Context, w http.ResponseWr
 	w.Header().Add("Location", makeAPIURL(h.pluginAPI, "field/%s", id))
 
 	ReturnJSON(w, &result, http.StatusCreated)
+}
+
+const maxPropertyFieldsToAutoComplete = 15
+
+func (h *PropertyFieldHandler) getPropertyFieldsAutoComplete(c *Context, w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	searchTerm := query.Get("term")
+
+	fields, err := h.propertyFieldService.GetFields(app.PropertyFieldFilterOptions{
+		SearchTerm: searchTerm,
+		Page:       0,
+		PerPage:    maxPropertyFieldsToAutoComplete,
+	})
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	ReturnJSON(w, fields, http.StatusOK)
 }

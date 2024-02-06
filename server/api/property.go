@@ -35,6 +35,7 @@ func NewPropertyHandler(router *mux.Router, propertyService app.PropertyService,
 
 	propertyRouter.HandleFunc("", withContext(handler.createProperty)).Methods(http.MethodPost)
 	propertyRouter.HandleFunc("", withContext(handler.updateProperty)).Methods(http.MethodPut)
+	propertyRouter.HandleFunc("/object/{objectID}", withContext(handler.getPropertiesForObject)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -132,4 +133,24 @@ func (h *PropertyHandler) updateProperty(c *Context, w http.ResponseWriter, r *h
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *PropertyHandler) getPropertiesForObject(c *Context, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	objectID := vars["objectID"]
+
+	if objectID == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "invalid object_id parameter", errors.New("objectID cannot be empty"))
+		return
+	}
+
+	//TODO: implement permission check
+
+	properties, err := h.propertyService.GetForObject(objectID)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	ReturnJSON(w, properties, http.StatusOK)
 }
