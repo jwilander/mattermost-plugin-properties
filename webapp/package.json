@@ -23,8 +23,6 @@
     "@babel/preset-react": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
     "@babel/runtime": "7.16.7",
-    "@emotion/babel-preset-css-prop": "11.2.0",
-    "@emotion/core": "10.3.1",
     "@testing-library/jest-dom": "5.16.1",
     "@types/babel__core": "7.1.18",
     "@types/babel__template": "7.4.1",
@@ -83,6 +81,7 @@
     "react": "^16.14.0",
     "react-dom": "16.14.0",
     "react-redux": "8.0.2",
+    "react-select": "5.8.0",
     "redux": "4.2.0",
     "styled-components": "5.3.3",
     "typescript": "4.6.4"

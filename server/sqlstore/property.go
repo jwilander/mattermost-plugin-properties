@@ -13,7 +13,8 @@ import (
 
 type sqlProperty struct {
 	app.Property
-	ValueJSON json.RawMessage `db:"value"`
+	ValueJSON               json.RawMessage `db:"value"`
+	PropertyFieldValuesJSON json.RawMessage `db:"propertyfieldvalues"`
 }
 
 type propertyStore struct {
@@ -35,6 +36,8 @@ func NewPropertyStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.Propert
 			"p.PropertyFieldID",
 			"p.Value",
 			"pf.Name as PropertyFieldName",
+			"pf.Type as PropertyFieldType",
+			"pf.Values as PropertyFieldValues",
 		).
 		From("PROP_Property p").
 		LeftJoin("PROP_PropertyField pf ON p.PropertyFieldID = pf.ID")
@@ -166,6 +169,12 @@ func toProperty(rawProperty sqlProperty) (app.Property, error) {
 	if len(rawProperty.ValueJSON) > 0 {
 		if err := json.Unmarshal(rawProperty.ValueJSON, &p.Value); err != nil {
 			return app.Property{}, errors.Wrapf(err, "failed to unmarshal value json for property id: '%s'", rawProperty.ID)
+		}
+	}
+
+	if len(rawProperty.PropertyFieldValuesJSON) > 0 {
+		if err := json.Unmarshal(rawProperty.PropertyFieldValuesJSON, &p.PropertyFieldValues); err != nil {
+			return app.Property{}, errors.Wrapf(err, "failed to unmarshal property_field values json for property id: '%s'", rawProperty.ID)
 		}
 	}
 

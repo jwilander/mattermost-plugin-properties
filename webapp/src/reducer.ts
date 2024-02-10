@@ -30,4 +30,4 @@ const reducer = combineReducers({
 
 export default reducer;
 
-export type PlaybooksPluginState = ReturnType<typeof reducer>;
+export type PropertiesPluginState = ReturnType<typeof reducer>;
