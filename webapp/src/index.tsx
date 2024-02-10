@@ -2,14 +2,16 @@ import {Store, Action} from 'redux';
 
 import {GlobalState} from '@mattermost/types/lib/store';
 
-import {manifest} from '@/manifest';
-
-import {PluginRegistry} from '@/types/mattermost-webapp';
+import {manifest} from 'src/manifest';
+import {PluginRegistry} from 'src/types/mattermost-webapp';
+import reducer from 'src/reducer';
+import PostAttachment from 'src/components/post_attachment';
 
 export default class Plugin {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
-        // @see https://developers.mattermost.com/extend/plugins/webapp/reference/
+        registry.registerReducer(reducer);
+        registry.registerPostMessageAttachmentComponent(PostAttachment);
     }
 }
 
