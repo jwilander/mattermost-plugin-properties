@@ -3,7 +3,7 @@
 
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 import {GlobalState} from '@mattermost/types/store';
 
 import {fetchPropertiesForObject} from 'src/client';
@@ -26,6 +26,7 @@ const PropertyBlock = styled.div`
     border-radius: 5px;
     display: flex;
     flex-direction: row;
+    align-items: center;
 
     .ValueSelector {
         padding: 4px 0;
@@ -39,6 +40,7 @@ const PropertyBlock = styled.div`
 
         .value-menu-option {
             justify-content: space-between;
+            display: flex;
         }
 
         .label-container {
