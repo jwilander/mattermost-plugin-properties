@@ -6,8 +6,6 @@ import styled, {css} from 'styled-components';
 const Label = styled.span<{empty: boolean}>`
     display: inline-flex;
     align-items: center;
-    padding: 2px 8px;
-    margin: 4px 4px 0 0;
     border-radius: 3px;
     line-height: 20px;
     color: rgba(var(--center-channel-color-rgb), 0.8);
