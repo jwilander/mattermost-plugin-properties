@@ -25,7 +25,7 @@ type Props = {
     value?: PropertyOption | PropertyOption[]
     emptyValue: string
     onCreate: (value: string) => void
-    onChange: (value: string | string[]) => void
+    onChange: (value: string[]) => void
     onChangeColor: (option: PropertyOption, color: string) => void
     onDeleteOption: (option: PropertyOption) => void
     isMulti?: boolean
@@ -329,11 +329,11 @@ function ValueSelector(props: Props): JSX.Element {
                     if (Array.isArray(value)) {
                         props.onChange((value as PropertyOption[]).map((option) => option.value));
                     } else {
-                        props.onChange((value as PropertyOption).value);
+                        props.onChange([(value as PropertyOption).value]);
                         props.onBlur?.();
                     }
                 } else if (action.action === 'clear') {
-                    props.onChange('');
+                    props.onChange([]);
                 }
             }}
             onKeyDown={(event) => {

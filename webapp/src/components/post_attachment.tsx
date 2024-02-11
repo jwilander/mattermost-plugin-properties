@@ -27,6 +27,7 @@ const PropertyBlock = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-right: 5px;
 
     .ValueSelector {
         padding: 4px 0;
@@ -74,6 +75,7 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
                     <PropertyName>{p.property_field_name + ': '}</PropertyName>
                     <PropertyElement
                         id={p.id}
+                        objectId={postId}
                         name={p.property_field_name}
                         type={p.property_field_type}
                         value={p.value}

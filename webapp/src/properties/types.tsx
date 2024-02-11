@@ -12,6 +12,7 @@ export type PropertyProps = {
     name: string;
     showEmptyPlaceholder: boolean
     readOnly: boolean;
+    onChange: (value: string[]) => void;
 }
 
 export abstract class PropertyType {
