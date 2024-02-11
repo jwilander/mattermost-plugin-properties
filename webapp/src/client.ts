@@ -39,6 +39,10 @@ export async function fetchPropertiesForObject(objectID: string) {
     return data as Property[];
 }
 
+export async function updatePropertyValue(id: string, value: string[]) {
+    await doPut(`${apiUrl}/property/${id}`, JSON.stringify({value}));
+}
+
 export const doGet = async <TData = any>(url: string) => {
     const {data} = await doFetchWithResponse<TData>(url, {method: 'get'});
 

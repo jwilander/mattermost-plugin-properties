@@ -2,13 +2,17 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
+import {useDispatch} from 'react-redux';
 import styled from 'styled-components';
 
 import {PropertyTypeEnum} from 'src/types/property';
 import propsRegistry from 'src/properties';
+import {updatePropertyValue} from 'src/client';
+import {receivedPropertyValue} from 'src/actions';
 
 type PropertyProps = {
     id: string;
+    objectId: string;
     name: string;
     type: PropertyTypeEnum;
     value: string[];
@@ -18,13 +22,23 @@ type PropertyProps = {
 const PropertyStyle = styled.div`
 `;
 
-const PropertyElement = ({id, name, type, value, possibleValues}: PropertyProps) => {
+const PropertyElement = ({id, objectId, name, type, value, possibleValues}: PropertyProps) => {
+    const dispatch = useDispatch();
+
     const property = propsRegistry.get(type);
     const Editor = property.Editor;
 
     //TODO: implement
     const readOnly = false;
     const showEmptyPlaceholder = false;
+
+    const onChange = (newValue: string[]) => {
+        updatePropertyValue(id, newValue).then(
+            () => {
+                dispatch(receivedPropertyValue(id, objectId, newValue));
+            },
+        );
+    };
 
     return (
         <Editor
@@ -34,6 +48,7 @@ const PropertyElement = ({id, name, type, value, possibleValues}: PropertyProps)
             value={value}
             name={name}
             possibleValues={possibleValues}
+            onChange={onChange}
         />
     );
 };

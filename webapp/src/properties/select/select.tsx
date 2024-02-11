@@ -9,7 +9,7 @@ import Label from 'src/widgets/label';
 import {PropertyProps} from 'src/properties/types';
 
 const SelectProperty = (props: PropertyProps) => {
-    const {value, possibleValues, readOnly} = props;
+    const {value, possibleValues, readOnly, onChange} = props;
 
     const [open, setOpen] = useState(false);
 
@@ -19,7 +19,6 @@ const SelectProperty = (props: PropertyProps) => {
 
     const emptyDisplayValue = 'Empty';
 
-    const onChange = useCallback((newValue) => {}, []);
     const onChangeColor = useCallback(() => {}, []);
     const onDeleteOption = useCallback(() => {}, []);
     const onDeleteValue = useCallback(() => {}, []);

@@ -34,7 +34,7 @@ func NewPropertyHandler(router *mux.Router, propertyService app.PropertyService,
 	propertyRouter := router.PathPrefix("/property").Subrouter()
 
 	propertyRouter.HandleFunc("", withContext(handler.createProperty)).Methods(http.MethodPost)
-	propertyRouter.HandleFunc("", withContext(handler.updateProperty)).Methods(http.MethodPut)
+	propertyRouter.HandleFunc("/{id}", withContext(handler.updateProperty)).Methods(http.MethodPut)
 	propertyRouter.HandleFunc("/object/{objectID}", withContext(handler.getPropertiesForObject)).Methods(http.MethodGet)
 
 	return handler
@@ -102,19 +102,21 @@ func (h *PropertyHandler) createProperty(c *Context, w http.ResponseWriter, r *h
 }
 
 type UpdatePropertyValue struct {
-	ID    string        `json:"id"`
 	Value []interface{} `json:"value"`
 }
 
 func (h *PropertyHandler) updateProperty(c *Context, w http.ResponseWriter, r *http.Request) {
 	//userID := r.Header.Get("Mattermost-User-ID")
+	vars := mux.Vars(r)
+	updateID := vars["id"]
+
 	var update UpdatePropertyValue
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "unable to decode property", err)
 		return
 	}
 
-	if update.ID == "" {
+	if updateID == "" {
 		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be set", nil)
 		return
 	}
@@ -126,7 +128,7 @@ func (h *PropertyHandler) updateProperty(c *Context, w http.ResponseWriter, r *h
 		return
 	}*/
 
-	err := h.propertyService.UpdateValue(update.ID, update.Value)
+	err := h.propertyService.UpdateValue(updateID, update.Value)
 	if err != nil {
 		h.HandleError(w, c.logger, err)
 		return
