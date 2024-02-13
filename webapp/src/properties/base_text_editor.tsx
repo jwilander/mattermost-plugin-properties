@@ -8,12 +8,13 @@ import Editable from 'src/widgets/editable';
 import {PropertyProps} from 'src/properties/types';
 
 const BaseTextEditor = (props: PropertyProps & {validator: () => boolean, spellCheck?: boolean}): JSX.Element => {
+    const {onChange} = props;
     const [value, setValue] = useState(props.value[0] || '');
     const onCancel = useCallback(() => setValue(props.value[0] || ''), [props.value]);
 
     const saveTextProperty = useCallback(() => {
-        //TODO: implement
-    }, []);
+        onChange([value]);
+    }, [onChange, value]);
 
     const saveTextPropertyRef = useRef<() => void>(saveTextProperty);
     if (props.readOnly) {

@@ -37,14 +37,18 @@ export type ElementProps = {
     readOnly?: boolean
     spellCheck?: boolean
     onFocus?: () => void
+    size: number
 }
 
 const EditableInput = styled.input<{error: boolean, readOnly: boolean}>`
     cursor: text;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: 1px solid transparent;
-    min-height: 24px;
+    border: none;
+    min-height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    background: transparent;
 
     &.active {
         min-width: 100px;
@@ -140,6 +144,7 @@ export function useEditable(
         readOnly: readonly,
         spellCheck: props.spellCheck,
         onFocus: props.onFocus,
+        size: value?.length || placeholderText?.length || 1,
     };
 }
 
