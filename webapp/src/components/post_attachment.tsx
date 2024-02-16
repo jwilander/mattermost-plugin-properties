@@ -33,6 +33,7 @@ const PropertyBlock = styled.div`
         padding: 4px 0;
         background-color: rgba(var(--center-channel-color-rgb), 0.08);
         width: auto;
+        border-radius: 2px;
     }
 
     .ValueSelector__menu {
