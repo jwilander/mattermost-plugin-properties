@@ -5,7 +5,6 @@ import {ActionMeta, OnChangeValue} from 'react-select';
 import {FormatOptionLabelMeta} from 'react-select/base';
 import CreatableSelect from 'react-select/creatable';
 import {CSSObject} from '@emotion/serialize';
-import styled from 'styled-components';
 
 import Menu from './menu';
 import MenuWrapper from './menu_wrapper';
@@ -201,103 +200,6 @@ const valueSelectorStyle = {
         top: 'unset',
     }),
 };
-
-const StyledCreatableSelect = styled(CreatableSelect)`
-    width: 100%;
-    border-radius: var(--default-rad);
-    color: rgb(var(--center-channel-color-rgb));
-    display: flex;
-    min-width: 180px;
-
-    > .Label {
-        margin: 0 10px;
-        max-width: calc(100% - 10px);
-
-        &.empty {
-            color: rgba(var(--center-channel-color-rgb), 0.6);
-        }
-    }
-
-    .Label {
-        display: flex;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        border-radius: var(--default-rad);
-        max-width: 100%;
-
-        .Label-text {
-            flex-grow: 1;
-        }
-
-        .IconButton.delete-value {
-            @include z-index(value-selector-delete);
-            width: 16px;
-            height: 16px;
-            flex: 0 0 auto;
-
-            i {
-                font-size: 16px;
-            }
-        }
-    }
-
-    .Label-no-padding {
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-
-    .Label-no-margin {
-        margin: 0;
-    }
-
-    .Label-single-select {
-        margin-bottom: 0;
-    }
-
-    .Label-text {
-        display: inline-block;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 250px;
-    }
-
-    .value-menu-option {
-        display: flex;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
-
-        .label-container {
-            flex-grow: 1;
-            display: flex;
-        }
-
-        .MenuWrapper {
-            display: flex;
-            align-self: flex-end;
-
-            .IconButton {
-                background-color: unset;
-
-                &:hover {
-                    background-color: rgba(var(--center-channel-color-rgb), 0.1);
-                }
-            }
-        }
-    }
-
-    .ValueSelector__menu-list {
-        overflow-y: unset;
-        overflow-x: unset;
-    }
-
-    .label-container > .Label {
-        max-width: 600px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
-    }
-`;
 
 function ValueSelector(props: Props): JSX.Element {
     return (
