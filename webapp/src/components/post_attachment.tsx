@@ -1,10 +1,10 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {IntlProvider} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import {GlobalState} from '@mattermost/types/store';
 
 import {fetchPropertiesForObject} from 'src/client';
@@ -14,11 +14,22 @@ import {getPropertiesForObject} from 'src/selectors';
 import {Property} from 'src/types/property';
 
 import PropertyElement from './property';
+import AddProperty from './add_property';
 
-const PropertyContainer = styled.div`
+const PropertyContainer = styled.div<{showAdd?: boolean}>`
     display: flex;
     flex-direction: row;
     width: 100%;
+
+    .AddProperty {
+        display: none;
+    }
+
+    ${(props) => props.showAdd && css`
+        .AddProperty {
+            display: flex;
+        }
+    `}
 `;
 
 const PropertyBlock = styled.div`
@@ -63,16 +74,26 @@ type PostAttachmentProps = {
 
 const PostAttachment = ({postId}: PostAttachmentProps) => {
     const dispatch = useDispatch();
+    const [isHover, setHover] = useState(false);
+    const [isAddOpen, setAddOpen] = useState(false);
     const properties = useSelector<GlobalState, Property[]>(getPropertiesForObject(postId));
 
     useEffect(() => {
         fetchPropertiesForObject(postId).
             then((res) => dispatch(receivedPropertiesForObject(postId, res || [])));
-    }, [postId]);
+    }, [dispatch, postId]);
+
+    const onMouseEnter = useCallback(() => setHover(true), [setHover]);
+    const onMouseLeave = useCallback(() => setHover(false), [setHover]);
 
     return (
         <IntlProvider locale='en'>
-            <PropertyContainer>
+            <PropertyContainer
+                className='PropertyContainer'
+                showAdd={isHover || isAddOpen}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 {properties.map((p) => (
                     <PropertyBlock key={p.id}>
                         <PropertyName>{p.property_field_name + ': '}</PropertyName>
@@ -86,6 +107,11 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
                         />
                     </PropertyBlock>
                 ))}
+                {properties.length > 0 ? <AddProperty
+                    objectId={postId}
+                    objectType='post'
+                    onOpenChange={setAddOpen}
+                /> : null}
             </PropertyContainer>
         </IntlProvider>
     );

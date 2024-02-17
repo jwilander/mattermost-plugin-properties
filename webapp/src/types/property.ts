@@ -13,3 +13,9 @@ export interface Property {
     value: string[];
 }
 
+export interface PropertyField {
+    id: string;
+    type: string;
+    name: string;
+    values: string[] | null | undefined;
+}

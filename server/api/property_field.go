@@ -110,7 +110,7 @@ func (h *PropertyFieldHandler) createPropertyField(c *Context, w http.ResponseWr
 	ReturnJSON(w, &result, http.StatusCreated)
 }
 
-const maxPropertyFieldsToAutoComplete = 15
+const maxPropertyFieldsToAutoComplete = 200
 
 func (h *PropertyFieldHandler) getPropertyFieldsAutoComplete(c *Context, w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
