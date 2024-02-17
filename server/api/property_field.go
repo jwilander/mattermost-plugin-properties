@@ -40,7 +40,7 @@ func NewPropertyFieldHandler(router *mux.Router, propertyFieldService app.Proper
 }
 
 func (h *PropertyFieldHandler) validPropertyField(w http.ResponseWriter, logger logrus.FieldLogger, propertyField *app.PropertyField) bool {
-	if propertyField.Type != app.PropertyFieldTypeText && propertyField.Type != app.PropertyFieldTypeSelect {
+	if propertyField.Type != app.PropertyFieldTypeText && propertyField.Type != app.PropertyFieldTypeSelect && propertyField.Type != app.PropertyFieldTypeUser {
 		err := errors.New("Invalid type")
 		h.HandleErrorWithCode(w, logger, http.StatusBadRequest, err.Error(), err)
 		return false

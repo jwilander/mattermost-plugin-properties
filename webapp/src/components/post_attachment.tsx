@@ -2,6 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {useEffect} from 'react';
+import {IntlProvider} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import styled from 'styled-components';
 import {GlobalState} from '@mattermost/types/store';
@@ -70,21 +71,23 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
     }, [postId]);
 
     return (
-        <PropertyContainer>
-            {properties.map((p) => (
-                <PropertyBlock key={p.id}>
-                    <PropertyName>{p.property_field_name + ': '}</PropertyName>
-                    <PropertyElement
-                        id={p.id}
-                        objectId={postId}
-                        name={p.property_field_name}
-                        type={p.property_field_type}
-                        value={p.value}
-                        possibleValues={p.property_field_values}
-                    />
-                </PropertyBlock>
-            ))}
-        </PropertyContainer>
+        <IntlProvider locale='en'>
+            <PropertyContainer>
+                {properties.map((p) => (
+                    <PropertyBlock key={p.id}>
+                        <PropertyName>{p.property_field_name + ': '}</PropertyName>
+                        <PropertyElement
+                            id={p.id}
+                            objectId={postId}
+                            name={p.property_field_name}
+                            type={p.property_field_type}
+                            value={p.value}
+                            possibleValues={p.property_field_values}
+                        />
+                    </PropertyBlock>
+                ))}
+            </PropertyContainer>
+        </IntlProvider>
     );
 };
 

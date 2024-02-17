@@ -159,7 +159,7 @@ type TableInfo struct {
 	CharacterMaximumLength *string
 }
 
-// getDBSchemaInfo returns info for each table created by Playbook plugin
+// getDBSchemaInfo returns info for each table created by the Properties plugin
 func getDBSchemaInfo(store *SQLStore) ([]TableInfo, error) {
 	var results []TableInfo
 	var err error
@@ -190,7 +190,7 @@ type IndexInfo struct {
 	ColumnName string
 }
 
-// getDBIndexesInfo returns index info for each table created by Playbook plugin
+// getDBIndexesInfo returns index info for each table created by the Properties plugin
 func getDBIndexesInfo(store *SQLStore) ([]IndexInfo, error) {
 	var results []IndexInfo
 	var err error
@@ -212,7 +212,7 @@ type ConstraintsInfo struct {
 	ConstraintType string
 }
 
-// getDBIndexesInfo returns index info for each table created by Playbook plugin
+// getDBIndexesInfo returns index info for each table created by the Properties plugin
 func getDBConstraintsInfo(store *SQLStore) ([]ConstraintsInfo, error) {
 	var results []ConstraintsInfo
 	var err error
