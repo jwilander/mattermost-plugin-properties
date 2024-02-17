@@ -5,12 +5,18 @@ import {Property} from 'src/types/property';
 import {manifest} from 'src/manifest';
 
 export const RECEIVED_PROPERTIES_FOR_OBJECT = manifest.id + '_received_properties';
+export const RECEIVED_PROPERTY = manifest.id + '_received_property';
 export const RECEIVED_PROPERTY_VALUE = manifest.id + '_received_property_value';
 
 export interface ReceivedPropertiesForObject {
     type: typeof RECEIVED_PROPERTIES_FOR_OBJECT;
     objectID: string;
     properties: Property[];
+}
+
+export interface ReceivedProperty {
+    type: typeof RECEIVED_PROPERTY;
+    property: Property;
 }
 
 export interface ReceivedPropertyValue {

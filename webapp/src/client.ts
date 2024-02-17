@@ -7,7 +7,7 @@ import {Client4} from 'mattermost-redux/client';
 import {ClientError} from '@mattermost/client';
 
 import {manifest} from './manifest';
-import {Property} from './types/property';
+import {Property, PropertyField} from './types/property';
 
 let siteURL = '';
 let basePath = '';
@@ -33,6 +33,11 @@ export const getApiUrl = (): string => {
     return apiUrl;
 };
 
+export async function createProperty(object_id: string, object_type: string, property_field_id: string, value: string[]) {
+    const data = await doPost(`${apiUrl}/property`, JSON.stringify({object_id, object_type, property_field_id, value}));
+    return data as {id: string};
+}
+
 export async function fetchPropertiesForObject(objectID: string) {
     const data = await doGet(`${apiUrl}/property/object/${objectID}`);
 
@@ -41,6 +46,12 @@ export async function fetchPropertiesForObject(objectID: string) {
 
 export async function updatePropertyValue(id: string, value: string[]) {
     await doPut(`${apiUrl}/property/${id}`, JSON.stringify({value}));
+}
+
+export async function fetchPropertyFieldsForTerm(term: string) {
+    const data = await doGet(`${apiUrl}/field/autocomplete?term=${term}`);
+
+    return data as PropertyField[];
 }
 
 export const doGet = async <TData = any>(url: string) => {
