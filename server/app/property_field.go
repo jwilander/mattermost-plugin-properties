@@ -16,6 +16,7 @@ type PropertyFieldFilterOptions struct {
 const (
 	PropertyFieldTypeText   = "text"
 	PropertyFieldTypeSelect = "select"
+	PropertyFieldTypeUser   = "user"
 )
 
 type PropertyFieldStore interface {
