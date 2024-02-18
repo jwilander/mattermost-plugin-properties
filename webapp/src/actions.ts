@@ -1,6 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
+import {AnyAction, Dispatch} from 'redux';
+
 import {Property} from 'src/types/property';
 
 import {
@@ -11,6 +13,9 @@ import {
     ReceivedProperty,
     ReceivedPropertyValue,
 } from 'src/types/actions';
+
+import {ManageFieldsModalProps, makeManageFieldsModal} from 'src/components/manage_fields_modal';
+import {modals} from 'src/webapp_globals';
 
 export const receivedPropertiesForObject = (objectID: string, properties: Property[]): ReceivedPropertiesForObject => ({
     type: RECEIVED_PROPERTIES_FOR_OBJECT,
@@ -29,3 +34,9 @@ export const receivedPropertyValue = (id: string, objectID: string, value: strin
     objectID,
     value,
 });
+
+export function displayManageFieldsModal(props: ManageFieldsModalProps) {
+    return async (dispatch: Dispatch<AnyAction>) => {
+        dispatch(modals.openModal(makeManageFieldsModal(props)));
+    };
+}
