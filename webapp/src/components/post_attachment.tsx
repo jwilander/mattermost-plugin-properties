@@ -15,18 +15,19 @@ import {Property} from 'src/types/property';
 
 import PropertyElement from './property';
 import AddProperty from './add_property';
+import ManageFields from './manage_fields';
 
 const PropertyContainer = styled.div<{showAdd?: boolean}>`
     display: flex;
     flex-direction: row;
     width: 100%;
 
-    .AddProperty {
+    .AddProperty, .ManageFields {
         display: none;
     }
 
     ${(props) => props.showAdd && css`
-        .AddProperty {
+        .AddProperty, .ManageFields {
             display: flex;
         }
     `}
@@ -107,11 +108,14 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
                         />
                     </PropertyBlock>
                 ))}
-                {properties.length > 0 ? <AddProperty
-                    objectId={postId}
-                    objectType='post'
-                    onOpenChange={setAddOpen}
-                /> : null}
+                {properties.length > 0 ? <>
+                    <AddProperty
+                        objectId={postId}
+                        objectType='post'
+                        onOpenChange={setAddOpen}
+                    />
+                    <ManageFields/>
+                </> : null}
             </PropertyContainer>
         </IntlProvider>
     );
