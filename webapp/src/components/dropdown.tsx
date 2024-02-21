@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {ComponentProps, cloneElement, useState} from 'react';
-import styled, {css} from 'styled-components';
+import styled from 'styled-components';
 
 import {
     FloatingFocusManager,
@@ -55,7 +55,7 @@ type DropdownProps = {
     shift?: Parameters<typeof shift>[0];
     focusManager?: boolean | Omit<ComponentProps<typeof FloatingFocusManager>, 'context' | 'children'>;
     portal?: boolean;
-    containerStyles?: ReturnType<typeof css>;
+    containerStyle?: React.CSSProperties;
 } & ({
     isOpen: boolean;
     onOpenChange: undefined | ((open: boolean) => void);
@@ -98,11 +98,9 @@ const Dropdown = (props: DropdownProps) => {
                     position: strategy,
                     top: y ?? 0,
                     left: x ?? 0,
+                    ...props.containerStyle,
                 },
             })}
-            css={`
-                ${props.containerStyles};
-            `}
         >
             {props.children}
         </FloatingContainer>
