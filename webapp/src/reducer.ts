@@ -6,6 +6,8 @@ import {combineReducers} from 'redux';
 import {Property} from 'src/types/property';
 
 import {
+    DELETED_PROPERTY,
+    DeletedProperty,
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
     RECEIVED_PROPERTY_VALUE,
@@ -40,6 +42,21 @@ function properties(state: TStateProperties = {}, action: ReceivedPropertiesForO
             nextProps[index] = p;
         }
         nextState[p.object_id] = nextProps;
+        return nextState;
+    }
+    case DELETED_PROPERTY: {
+        const a = action as DeletedProperty;
+        const nextState = {...state};
+        if (!nextState[a.objectID]) {
+            return state;
+        }
+        const nextProps = [...nextState[a.objectID]];
+        const index = nextProps.findIndex((p) => p.id === a.id);
+        if (index < 0) {
+            return state;
+        }
+        nextProps.splice(index, 1);
+        nextState[a.objectID] = nextProps;
         return nextState;
     }
     case RECEIVED_PROPERTY_VALUE: {

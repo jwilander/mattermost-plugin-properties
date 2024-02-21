@@ -35,6 +35,7 @@ func NewPropertyHandler(router *mux.Router, propertyService app.PropertyService,
 
 	propertyRouter.HandleFunc("", withContext(handler.createProperty)).Methods(http.MethodPost)
 	propertyRouter.HandleFunc("/{id}", withContext(handler.updateProperty)).Methods(http.MethodPut)
+	propertyRouter.HandleFunc("/{id}", withContext(handler.deleteProperty)).Methods(http.MethodDelete)
 	propertyRouter.HandleFunc("/object/{objectID}", withContext(handler.getPropertiesForObject)).Methods(http.MethodGet)
 
 	return handler
@@ -155,4 +156,30 @@ func (h *PropertyHandler) getPropertiesForObject(c *Context, w http.ResponseWrit
 	}
 
 	ReturnJSON(w, properties, http.StatusOK)
+}
+
+func (h *PropertyHandler) deleteProperty(c *Context, w http.ResponseWriter, r *http.Request) {
+	//userID := r.Header.Get("Mattermost-User-ID")
+	vars := mux.Vars(r)
+	deleteID := vars["id"]
+
+	if deleteID == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be set", nil)
+		return
+	}
+
+	//TODO: implement validate value
+
+	//TODO: implement permission check for property update
+	/*if !h.PermissionsCheck(w, c.logger, h.permissions.PropertyDelete(userID, property)) {
+		return
+	}*/
+
+	err := h.propertyService.Delete(deleteID)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

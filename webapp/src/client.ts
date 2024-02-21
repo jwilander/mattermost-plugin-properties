@@ -46,6 +46,10 @@ export async function updatePropertyValue(id: string, value: string[]) {
     await doPut(`${apiUrl}/property/${id}`, JSON.stringify({value}));
 }
 
+export async function deleteProperty(id: string) {
+    await doDelete(`${apiUrl}/property/${id}`);
+}
+
 export async function createPropertyField(name: string, type: string, values: string[] | null | undefined) {
     const data = await doPost(`${apiUrl}/field`, JSON.stringify({name, type, values}));
     return data as {id: string};
@@ -63,6 +67,12 @@ export async function updatePropertyField(id: string, type: string, name: string
 
 export const doGet = async <TData = any>(url: string) => {
     const {data} = await doFetchWithResponse<TData>(url, {method: 'get'});
+
+    return data;
+};
+
+export const doDelete = async <TData = any>(url: string) => {
+    const {data} = await doFetchWithResponse<TData>(url, {method: 'delete'});
 
     return data;
 };

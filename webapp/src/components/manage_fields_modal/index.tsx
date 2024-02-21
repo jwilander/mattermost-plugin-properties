@@ -6,7 +6,7 @@ import {PropertyField} from 'src/types/property';
 import GenericModal from 'src/widgets/generic_modal';
 import {createPropertyField, fetchPropertyFieldsForTerm, updatePropertyField} from 'src/client';
 import Editable from 'src/widgets/editable';
-import DeleteIcon from 'src/widgets/icons/close';
+import DeleteIcon from 'src/widgets/icons/delete';
 import IconButton from 'src/widgets/buttons/icon_button';
 
 import AddPropertyField from './add_property_field';
