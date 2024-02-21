@@ -8,9 +8,11 @@ import {Property} from 'src/types/property';
 import {
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
+    DELETED_PROPERTY,
     RECEIVED_PROPERTY_VALUE,
     ReceivedPropertiesForObject,
     ReceivedProperty,
+    DeletedProperty,
     ReceivedPropertyValue,
 } from 'src/types/actions';
 
@@ -26,6 +28,12 @@ export const receivedPropertiesForObject = (objectID: string, properties: Proper
 export const receivedProperty = (property: Property): ReceivedProperty => ({
     type: RECEIVED_PROPERTY,
     property,
+});
+
+export const deletedProperty = (id: string, objectID: string): DeletedProperty => ({
+    type: DELETED_PROPERTY,
+    id,
+    objectID,
 });
 
 export const receivedPropertyValue = (id: string, objectID: string, value: string[]): ReceivedPropertyValue => ({

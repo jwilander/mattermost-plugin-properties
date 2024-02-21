@@ -58,3 +58,7 @@ func (ps *propertyService) GetForObject(objectID string) ([]Property, error) {
 func (ps *propertyService) UpdateValue(id string, value []interface{}) error {
 	return ps.store.UpdateValue(id, value)
 }
+
+func (ps *propertyService) Delete(id string) error {
+	return ps.store.Delete(id)
+}

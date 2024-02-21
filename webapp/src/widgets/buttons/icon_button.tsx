@@ -13,6 +13,7 @@ type Props = {
     size?: string
     inverted?: boolean
     onMouseDown?: (e: React.MouseEvent<HTMLButtonElement>) => void
+    style?: React.CSSProperties
 }
 
 const Button = styled.button`
@@ -104,6 +105,7 @@ function IconButton(props: Props): JSX.Element {
             className={generateClassName(classNames)}
             title={props.title}
             aria-label={props.title}
+            style={props.style}
         >
             {props.icon}
         </Button>

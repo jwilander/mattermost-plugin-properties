@@ -33,42 +33,6 @@ const PropertyContainer = styled.div<{showAdd?: boolean}>`
     `}
 `;
 
-const PropertyBlock = styled.div`
-    padding: 5px 6px;
-    background: rgba(var(--center-channel-color-rgb), 0.08);
-    border-radius: 5px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-right: 5px;
-
-    .ValueSelector {
-        padding: 4px 0;
-        background-color: rgba(var(--center-channel-color-rgb), 0.08);
-        width: auto;
-        border-radius: 2px;
-    }
-
-    .ValueSelector__menu {
-        z-index: 10;
-        max-width: 100%;
-
-        .value-menu-option {
-            justify-content: space-between;
-            display: flex;
-        }
-
-        .label-container {
-            max-width: 90%;
-        }
-    }
-`;
-
-const PropertyName = styled.span`
-    margin-right: 5px;
-    color: rgba(var(--center-channel-color-rgb), 0.6);
-`;
-
 type PostAttachmentProps = {
     postId: string;
 }
@@ -84,8 +48,8 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
             then((res) => dispatch(receivedPropertiesForObject(postId, res || [])));
     }, [dispatch, postId]);
 
-    const onMouseEnter = useCallback(() => setHover(true), [setHover]);
-    const onMouseLeave = useCallback(() => setHover(false), [setHover]);
+    const onMouseEnter = () => setHover(true);
+    const onMouseLeave = () => setHover(false);
 
     return (
         <IntlProvider locale='en'>
@@ -96,17 +60,15 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
                 onMouseLeave={onMouseLeave}
             >
                 {properties.map((p) => (
-                    <PropertyBlock key={p.id}>
-                        <PropertyName>{p.property_field_name + ': '}</PropertyName>
-                        <PropertyElement
-                            id={p.id}
-                            objectId={postId}
-                            name={p.property_field_name}
-                            type={p.property_field_type}
-                            value={p.value}
-                            possibleValues={p.property_field_values}
-                        />
-                    </PropertyBlock>
+                    <PropertyElement
+                        key={p.id}
+                        id={p.id}
+                        objectId={postId}
+                        name={p.property_field_name}
+                        type={p.property_field_type}
+                        value={p.value}
+                        possibleValues={p.property_field_values}
+                    />
                 ))}
                 {properties.length > 0 ? <>
                     <AddProperty
