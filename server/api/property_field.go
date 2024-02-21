@@ -34,6 +34,7 @@ func NewPropertyFieldHandler(router *mux.Router, propertyFieldService app.Proper
 	propertyFieldRouter := router.PathPrefix("/field").Subrouter()
 
 	propertyFieldRouter.HandleFunc("", withContext(handler.createPropertyField)).Methods(http.MethodPost)
+	propertyFieldRouter.HandleFunc("/{id}", withContext(handler.updatePropertyField)).Methods(http.MethodPut)
 	propertyFieldRouter.HandleFunc("/autocomplete", withContext(handler.getPropertyFieldsAutoComplete)).Methods(http.MethodGet)
 
 	return handler
@@ -55,6 +56,10 @@ func (h *PropertyFieldHandler) validPropertyField(w http.ResponseWriter, logger 
 	if len(propertyField.Values) > 0 {
 		if propertyField.Type == app.PropertyFieldTypeText {
 			err := errors.New("Invalid values: text type has no values")
+			h.HandleErrorWithCode(w, logger, http.StatusBadRequest, err.Error(), err)
+			return false
+		} else if propertyField.Type == app.PropertyFieldTypeUser {
+			err := errors.New("Invalid values: user type has no values")
 			h.HandleErrorWithCode(w, logger, http.StatusBadRequest, err.Error(), err)
 			return false
 		} else if propertyField.Type == app.PropertyFieldTypeSelect {
@@ -127,4 +132,39 @@ func (h *PropertyFieldHandler) getPropertyFieldsAutoComplete(c *Context, w http.
 	}
 
 	ReturnJSON(w, fields, http.StatusOK)
+}
+
+func (h *PropertyFieldHandler) updatePropertyField(c *Context, w http.ResponseWriter, r *http.Request) {
+	//userID := r.Header.Get("Mattermost-User-ID")
+
+	var propertyField app.PropertyField
+	if err := json.NewDecoder(r.Body).Decode(&propertyField); err != nil {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "unable to decode property_field", err)
+		return
+	}
+
+	vars := mux.Vars(r)
+	propertyField.ID = vars["id"]
+
+	if propertyField.ID == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be set", nil)
+		return
+	}
+
+	if !h.validPropertyField(w, c.logger, &propertyField) {
+		return
+	}
+
+	//TODO: implement permission check for property field
+	/*if !h.PermissionsCheck(w, c.logger, h.permissions.PropertyFieldUpdate(userID, propertyField)) {
+		return
+	}*/
+
+	err := h.propertyFieldService.Update(propertyField)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

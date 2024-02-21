@@ -29,3 +29,7 @@ func (ps *propertyFieldService) Create(propertyField PropertyField) (string, err
 func (ps *propertyFieldService) GetFields(filter PropertyFieldFilterOptions) ([]PropertyField, error) {
 	return ps.store.GetFields(filter)
 }
+
+func (ps *propertyFieldService) Update(propertyField PropertyField) error {
+	return ps.store.Update(propertyField)
+}

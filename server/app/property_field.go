@@ -23,10 +23,12 @@ type PropertyFieldStore interface {
 	Get(id string) (PropertyField, error)
 	Create(propertyField PropertyField) (string, error)
 	GetFields(filter PropertyFieldFilterOptions) ([]PropertyField, error)
+	Update(propertyField PropertyField) error
 }
 
 type PropertyFieldService interface {
 	Get(id string) (PropertyField, error)
 	Create(propertyField PropertyField) (string, error)
 	GetFields(filter PropertyFieldFilterOptions) ([]PropertyField, error)
+	Update(propertyField PropertyField) error
 }
