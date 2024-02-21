@@ -1,5 +1,6 @@
 import React, {ComponentProps, useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
+import {IntlProvider} from 'react-intl';
 
 import {PropertyField} from 'src/types/property';
 import GenericModal from 'src/widgets/generic_modal';
@@ -7,6 +8,8 @@ import {createPropertyField, fetchPropertyFieldsForTerm, updatePropertyField} fr
 import Editable from 'src/widgets/editable';
 import DeleteIcon from 'src/widgets/icons/close';
 import IconButton from 'src/widgets/buttons/icon_button';
+
+import AddPropertyField from './add_property_field';
 
 const ID = 'manage_fields';
 
@@ -82,56 +85,65 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
         setTempFields(newFields);
     };
 
+    const onAddField = (type: string) => {
+        setTempFields([...tempFields, {id: '', name: '', type, values: null}]);
+    };
+
     useEffect(() => {
         fetchPropertyFields(true);
     }, []);
 
     return (
-        <SizedGenericModal
-            id={ID}
-            modalHeaderText='Manage fields'
-            {...modalProps}
-            confirmButtonText='Save'
-            cancelButtonText='Cancel'
-            isConfirmDisabled={false}
-            handleConfirm={onConfirm}
-            showCancel={true}
-            autoCloseOnCancelButton={true}
-            autoCloseOnConfirmButton={true}
-        >
-            <FieldsContainer>
-                <FieldRow>
-                    <TitleLabel>{'Name'}</TitleLabel>
-                    <TitleLabel>{'Type'}</TitleLabel>
-                    <TitleLabel>{'Values'}</TitleLabel>
-                    <TitleLabel>{'Actions'}</TitleLabel>
-                </FieldRow>
-                {tempFields.map((f) => (
-                    <FieldRow key={f.id}>
-                        <td>
-                            <Editable
-                                value={f.name}
-                                onChange={(newValue) => onFieldChange(f.id, 'name', newValue)}
-                            />
-                        </td>
-                        <Label>{f.type}</Label>
-                        {f.values ? (
-                            <td>
-                                <Editable
-                                    value={f.values.join(',')}
-                                    onChange={(newValue) => onFieldChange(f.id, 'values', newValue.trim().split(','))}
-                                />
-                            </td>) : <Label>{'-'}</Label>}
-                        <td>
-                            <IconButton
-                                onClick={() => {}}
-                                icon={<DeleteIcon/>}
-                                title='Delete field'
-                            />
-                        </td>
-                    </FieldRow>
-                ))}
-            </FieldsContainer>
-        </SizedGenericModal>
+        <IntlProvider locale='en'>
+            <SizedGenericModal
+                id={ID}
+                modalHeaderText='Manage fields'
+                {...modalProps}
+                confirmButtonText='Save'
+                cancelButtonText='Cancel'
+                isConfirmDisabled={false}
+                handleConfirm={onConfirm}
+                showCancel={true}
+                autoCloseOnCancelButton={true}
+                autoCloseOnConfirmButton={true}
+            >
+                <>
+                    <FieldsContainer>
+                        <FieldRow>
+                            <TitleLabel>{'Name'}</TitleLabel>
+                            <TitleLabel>{'Type'}</TitleLabel>
+                            <TitleLabel>{'Values'}</TitleLabel>
+                            <TitleLabel>{'Actions'}</TitleLabel>
+                        </FieldRow>
+                        {tempFields.map((f) => (
+                            <FieldRow key={f.id}>
+                                <td>
+                                    <Editable
+                                        value={f.name}
+                                        onChange={(newValue) => onFieldChange(f.id, 'name', newValue)}
+                                    />
+                                </td>
+                                <Label>{f.type}</Label>
+                                {f.values ? (
+                                    <td>
+                                        <Editable
+                                            value={f.values.join(',')}
+                                            onChange={(newValue) => onFieldChange(f.id, 'values', newValue.trim().split(','))}
+                                        />
+                                    </td>) : <Label>{'-'}</Label>}
+                                <td>
+                                    <IconButton
+                                        onClick={() => {}}
+                                        icon={<DeleteIcon/>}
+                                        title='Delete field'
+                                    />
+                                </td>
+                            </FieldRow>
+                        ))}
+                    </FieldsContainer>
+                    <AddPropertyField onAdd={onAddField}/>
+                </>
+            </SizedGenericModal>
+        </IntlProvider>
     );
 };
