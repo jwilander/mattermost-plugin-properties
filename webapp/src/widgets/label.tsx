@@ -3,7 +3,7 @@
 
 import styled, {css} from 'styled-components';
 
-const Label = styled.span<{empty: boolean}>`
+const Label = styled.span<{empty?: boolean}>`
     display: inline-flex;
     align-items: center;
     border-radius: 3px;

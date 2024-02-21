@@ -163,6 +163,37 @@ func (p *propertyFieldStore) GetFields(filter app.PropertyFieldFilterOptions) ([
 	return fields, nil
 }
 
+func (p *propertyFieldStore) Update(propertyField app.PropertyField) error {
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	rawPropertyField, err := toSQLPropertyField(propertyField)
+	if err != nil {
+		return err
+	}
+
+	_, err = p.store.execBuilder(tx, sq.
+		Update("PROP_PropertyField").
+		SetMap(map[string]interface{}{
+			"Name":   rawPropertyField.Name,
+			"Values": rawPropertyField.ValuesJSON,
+		}).
+		Where(sq.Eq{"ID": rawPropertyField.ID}))
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to update property field with id '%s'", rawPropertyField.ID)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return errors.Wrap(err, "could not commit transaction")
+	}
+
+	return nil
+}
+
 func toSQLPropertyField(propertyField app.PropertyField) (*sqlPropertyField, error) {
 	valuesJSON, err := json.Marshal(propertyField.Values)
 	if err != nil {

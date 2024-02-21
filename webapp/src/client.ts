@@ -1,8 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import qs from 'qs';
-
 import {Client4} from 'mattermost-redux/client';
 import {ClientError} from '@mattermost/client';
 
@@ -48,10 +46,19 @@ export async function updatePropertyValue(id: string, value: string[]) {
     await doPut(`${apiUrl}/property/${id}`, JSON.stringify({value}));
 }
 
+export async function createPropertyField(name: string, type: string, values: string[] | null | undefined) {
+    const data = await doPost(`${apiUrl}/field`, JSON.stringify({name, type, values}));
+    return data as {id: string};
+}
+
 export async function fetchPropertyFieldsForTerm(term: string) {
     const data = await doGet(`${apiUrl}/field/autocomplete?term=${term}`);
 
     return data as PropertyField[];
+}
+
+export async function updatePropertyField(id: string, type: string, name: string, values: string[] | null | undefined) {
+    await doPut(`${apiUrl}/field/${id}`, JSON.stringify({name, type, values}));
 }
 
 export const doGet = async <TData = any>(url: string) => {
