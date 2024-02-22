@@ -9,7 +9,7 @@ export interface Property {
     property_field_id: string;
     readonly property_field_name: string;
     readonly property_field_type: PropertyTypeEnum;
-    readonly property_field_values: string[] | null;
+    readonly property_field_values: string[] | null | undefined;
     value: string[];
 }
 
