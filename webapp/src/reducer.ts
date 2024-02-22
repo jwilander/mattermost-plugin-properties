@@ -10,15 +10,17 @@ import {
     DeletedProperty,
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
+    RECEIVED_PROPERTY_FIELD,
     RECEIVED_PROPERTY_VALUE,
     ReceivedPropertiesForObject,
     ReceivedProperty,
+    ReceivedPropertyField,
     ReceivedPropertyValue,
 } from 'src/types/actions';
 
 type TStateProperties = Record<Property['object_id'], Property[]>;
 
-function properties(state: TStateProperties = {}, action: ReceivedPropertiesForObject | ReceivedProperty | ReceivedPropertyValue) {
+function properties(state: TStateProperties = {}, action: ReceivedPropertiesForObject | ReceivedProperty | ReceivedPropertyField | ReceivedPropertyValue) {
     switch (action.type) {
     case RECEIVED_PROPERTIES_FOR_OBJECT: {
         const a = action as ReceivedPropertiesForObject;
@@ -43,6 +45,26 @@ function properties(state: TStateProperties = {}, action: ReceivedPropertiesForO
         }
         nextState[p.object_id] = nextProps;
         return nextState;
+    }
+    case RECEIVED_PROPERTY_FIELD: {
+        const a = action as ReceivedPropertyField;
+        const f = a.field;
+        const nextState = {...state};
+        let changed = false;
+        Object.keys(state).forEach((objectID) => {
+            const nextProps = [...nextState[objectID]];
+            nextState[objectID].forEach((p, i) => {
+                if (p.property_field_id === f.id) {
+                    nextProps[i] = {...p, property_field_name: f.name, property_field_values: f.values};
+                    changed = true;
+                }
+            });
+            nextState[objectID] = nextProps;
+        });
+        if (changed) {
+            return nextState;
+        }
+        return state;
     }
     case DELETED_PROPERTY: {
         const a = action as DeletedProperty;

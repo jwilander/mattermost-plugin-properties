@@ -3,17 +3,19 @@
 
 import {AnyAction, Dispatch} from 'redux';
 
-import {Property} from 'src/types/property';
+import {Property, PropertyField} from 'src/types/property';
 
 import {
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
+    RECEIVED_PROPERTY_FIELD,
     DELETED_PROPERTY,
     RECEIVED_PROPERTY_VALUE,
     ReceivedPropertiesForObject,
     ReceivedProperty,
     DeletedProperty,
     ReceivedPropertyValue,
+    ReceivedPropertyField,
 } from 'src/types/actions';
 
 import {ManageFieldsModalProps, makeManageFieldsModal} from 'src/components/manage_fields_modal';
@@ -28,6 +30,11 @@ export const receivedPropertiesForObject = (objectID: string, properties: Proper
 export const receivedProperty = (property: Property): ReceivedProperty => ({
     type: RECEIVED_PROPERTY,
     property,
+});
+
+export const receivedPropertyField = (field: PropertyField): ReceivedPropertyField => ({
+    type: RECEIVED_PROPERTY_FIELD,
+    field,
 });
 
 export const deletedProperty = (id: string, objectID: string): DeletedProperty => ({

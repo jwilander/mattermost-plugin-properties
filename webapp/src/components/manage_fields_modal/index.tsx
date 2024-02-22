@@ -2,12 +2,16 @@ import React, {ComponentProps, useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {IntlProvider} from 'react-intl';
 
+import {useDispatch} from 'react-redux';
+
 import {PropertyField} from 'src/types/property';
 import GenericModal from 'src/widgets/generic_modal';
 import {createPropertyField, fetchPropertyFieldsForTerm, updatePropertyField} from 'src/client';
 import Editable from 'src/widgets/editable';
 import DeleteIcon from 'src/widgets/icons/delete';
 import IconButton from 'src/widgets/buttons/icon_button';
+
+import {receivedPropertyField} from '@/actions';
 
 import AddPropertyField from './add_property_field';
 
@@ -47,6 +51,7 @@ const TitleLabel = styled(Label)`
 `;
 
 const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
+    const dispatch = useDispatch();
     const [tempFields, setTempFields] = useState([] as PropertyField[]);
     const [origFields, setOrigFields] = useState([] as PropertyField[]);
 
@@ -64,8 +69,9 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
         const updateRequests = fieldsToUpdate.map((f) => updatePropertyField(f.id, f.type, f.name, f.values));
         const createRequests = fieldsToCreate.map((f) => createPropertyField(f.name, f.type, f.values));
         await Promise.all(updateRequests);
+        fieldsToUpdate.forEach((f) => dispatch(receivedPropertyField(f)));
         await Promise.all(createRequests);
-    }, [origFields, tempFields]);
+    }, [origFields, tempFields, dispatch]);
 
     async function fetchPropertyFields(first?: boolean) {
         //TODO: implement dispatch to redux store
