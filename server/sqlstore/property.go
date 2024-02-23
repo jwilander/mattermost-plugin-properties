@@ -40,7 +40,7 @@ func NewPropertyStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.Propert
 			"pf.Values as PropertyFieldValues",
 		).
 		From("PROP_Property p").
-		LeftJoin("PROP_PropertyField pf ON p.PropertyFieldID = pf.ID")
+		RightJoin("PROP_PropertyField pf ON p.PropertyFieldID = pf.ID")
 
 	return &propertyStore{
 		pluginAPI:      pluginAPI,

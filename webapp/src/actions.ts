@@ -10,10 +10,12 @@ import {
     RECEIVED_PROPERTY,
     RECEIVED_PROPERTY_FIELD,
     DELETED_PROPERTY,
+    DELETED_PROPERTY_FIELD,
     RECEIVED_PROPERTY_VALUE,
     ReceivedPropertiesForObject,
     ReceivedProperty,
     DeletedProperty,
+    DeletedPropertyField,
     ReceivedPropertyValue,
     ReceivedPropertyField,
 } from 'src/types/actions';
@@ -41,6 +43,11 @@ export const deletedProperty = (id: string, objectID: string): DeletedProperty =
     type: DELETED_PROPERTY,
     id,
     objectID,
+});
+
+export const deletedPropertyField = (id: string): DeletedPropertyField => ({
+    type: DELETED_PROPERTY_FIELD,
+    id,
 });
 
 export const receivedPropertyValue = (id: string, objectID: string, value: string[]): ReceivedPropertyValue => ({

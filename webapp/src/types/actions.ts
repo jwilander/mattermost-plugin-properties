@@ -8,6 +8,7 @@ export const RECEIVED_PROPERTIES_FOR_OBJECT = manifest.id + '_received_propertie
 export const RECEIVED_PROPERTY = manifest.id + '_received_property';
 export const RECEIVED_PROPERTY_FIELD = manifest.id + '_received_property_field';
 export const DELETED_PROPERTY = manifest.id + '_deleted_property';
+export const DELETED_PROPERTY_FIELD = manifest.id + '_deleted_property_field';
 export const RECEIVED_PROPERTY_VALUE = manifest.id + '_received_property_value';
 
 export interface ReceivedPropertiesForObject {
@@ -30,6 +31,11 @@ export interface DeletedProperty {
     type: typeof DELETED_PROPERTY;
     id: string;
     objectID: string;
+}
+
+export interface DeletedPropertyField {
+    type: typeof DELETED_PROPERTY_FIELD;
+    id: string;
 }
 
 export interface ReceivedPropertyValue {

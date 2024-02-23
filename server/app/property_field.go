@@ -24,6 +24,7 @@ type PropertyFieldStore interface {
 	Create(propertyField PropertyField) (string, error)
 	GetFields(filter PropertyFieldFilterOptions) ([]PropertyField, error)
 	Update(propertyField PropertyField) error
+	Delete(id string) error
 }
 
 type PropertyFieldService interface {
@@ -31,4 +32,5 @@ type PropertyFieldService interface {
 	Create(propertyField PropertyField) (string, error)
 	GetFields(filter PropertyFieldFilterOptions) ([]PropertyField, error)
 	Update(propertyField PropertyField) error
+	Delete(id string) error
 }

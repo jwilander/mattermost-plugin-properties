@@ -6,12 +6,12 @@ import {useDispatch} from 'react-redux';
 
 import {PropertyField} from 'src/types/property';
 import GenericModal from 'src/widgets/generic_modal';
-import {createPropertyField, fetchPropertyFieldsForTerm, updatePropertyField} from 'src/client';
+import {createPropertyField, deletePropertyField, fetchPropertyFieldsForTerm, updatePropertyField} from 'src/client';
 import Editable from 'src/widgets/editable';
 import DeleteIcon from 'src/widgets/icons/delete';
 import IconButton from 'src/widgets/buttons/icon_button';
 
-import {receivedPropertyField} from '@/actions';
+import {deletedPropertyField, receivedPropertyField} from '@/actions';
 
 import AddPropertyField from './add_property_field';
 
@@ -54,10 +54,14 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
     const dispatch = useDispatch();
     const [tempFields, setTempFields] = useState([] as PropertyField[]);
     const [origFields, setOrigFields] = useState([] as PropertyField[]);
+    const [toDeleteIDs, setToDeleteIDs] = useState([] as string[]);
 
     const onConfirm = useCallback(async () => {
         const fieldsToCreate = [] as PropertyField[];
         const fieldsToUpdate = tempFields.filter((f, index) => {
+            if (toDeleteIDs.includes(f.id)) {
+                return false;
+            }
             const orig = origFields[index];
             if (orig == null) {
                 fieldsToCreate.push(f);
@@ -66,12 +70,17 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
 
             return f !== orig;
         });
+
+        //TODO: look into batching this
         const updateRequests = fieldsToUpdate.map((f) => updatePropertyField(f.id, f.type, f.name, f.values));
         const createRequests = fieldsToCreate.map((f) => createPropertyField(f.name, f.type, f.values));
+        const deleteRequests = toDeleteIDs.map((id) => deletePropertyField(id));
         await Promise.all(updateRequests);
         fieldsToUpdate.forEach((f) => dispatch(receivedPropertyField(f)));
+        toDeleteIDs.forEach((id) => dispatch(deletedPropertyField(id)));
         await Promise.all(createRequests);
-    }, [origFields, tempFields, dispatch]);
+        await Promise.all(deleteRequests);
+    }, [origFields, tempFields, toDeleteIDs, dispatch]);
 
     async function fetchPropertyFields(first?: boolean) {
         //TODO: implement dispatch to redux store
@@ -95,9 +104,17 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
         setTempFields([...tempFields, {id: '', name: '', type, values: null}]);
     };
 
+    const onDeleteField = (id: string) => {
+        const newToDeleteIDs = [...toDeleteIDs, id];
+        setToDeleteIDs(newToDeleteIDs);
+    };
+
     useEffect(() => {
         fetchPropertyFields(true);
     }, []);
+
+    //TODO: memoize
+    const toRenderFields = tempFields.filter((f) => !toDeleteIDs.includes(f.id));
 
     return (
         <IntlProvider locale='en'>
@@ -121,7 +138,7 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
                             <TitleLabel>{'Values'}</TitleLabel>
                             <TitleLabel>{'Actions'}</TitleLabel>
                         </FieldRow>
-                        {tempFields.map((f) => (
+                        {toRenderFields.map((f) => (
                             <FieldRow key={f.id}>
                                 <td>
                                     <Editable
@@ -139,7 +156,7 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
                                     </td>) : <Label>{'-'}</Label>}
                                 <td>
                                     <IconButton
-                                        onClick={() => {}}
+                                        onClick={() => onDeleteField(f.id)}
                                         icon={<DeleteIcon/>}
                                         title='Delete field'
                                     />

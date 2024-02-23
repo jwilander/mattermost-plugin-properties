@@ -7,20 +7,23 @@ import {Property} from 'src/types/property';
 
 import {
     DELETED_PROPERTY,
-    DeletedProperty,
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
     RECEIVED_PROPERTY_FIELD,
     RECEIVED_PROPERTY_VALUE,
+    DELETED_PROPERTY_FIELD,
+    DeletedProperty,
     ReceivedPropertiesForObject,
     ReceivedProperty,
     ReceivedPropertyField,
     ReceivedPropertyValue,
+    DeletedPropertyField,
+
 } from 'src/types/actions';
 
 type TStateProperties = Record<Property['object_id'], Property[]>;
 
-function properties(state: TStateProperties = {}, action: ReceivedPropertiesForObject | ReceivedProperty | ReceivedPropertyField | ReceivedPropertyValue) {
+function properties(state: TStateProperties = {}, action: ReceivedPropertiesForObject | ReceivedProperty | ReceivedPropertyField | ReceivedPropertyValue | DeletedProperty | DeletedPropertyField) {
     switch (action.type) {
     case RECEIVED_PROPERTIES_FOR_OBJECT: {
         const a = action as ReceivedPropertiesForObject;
@@ -80,6 +83,30 @@ function properties(state: TStateProperties = {}, action: ReceivedPropertiesForO
         nextProps.splice(index, 1);
         nextState[a.objectID] = nextProps;
         return nextState;
+    }
+    case DELETED_PROPERTY_FIELD: {
+        const a = action as DeletedPropertyField;
+        const id = a.id;
+        const nextState = {...state};
+        let changed = false;
+        Object.keys(state).forEach((objectID) => {
+            let propsChanged = false;
+            const nextProps = nextState[objectID].filter((p) => {
+                if (p.property_field_id === id) {
+                    changed = true;
+                    propsChanged = true;
+                    return false;
+                }
+                return true;
+            });
+            if (propsChanged) {
+                nextState[objectID] = nextProps;
+            }
+        });
+        if (changed) {
+            return nextState;
+        }
+        return state;
     }
     case RECEIVED_PROPERTY_VALUE: {
         const a = action as ReceivedPropertyValue;

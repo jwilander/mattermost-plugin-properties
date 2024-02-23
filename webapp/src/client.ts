@@ -55,6 +55,10 @@ export async function createPropertyField(name: string, type: string, values: st
     return data as {id: string};
 }
 
+export async function deletePropertyField(id: string) {
+    await doDelete(`${apiUrl}/field/${id}`);
+}
+
 export async function fetchPropertyFieldsForTerm(term: string) {
     const data = await doGet(`${apiUrl}/field/autocomplete?term=${term}`);
 
