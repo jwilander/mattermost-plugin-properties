@@ -15,7 +15,6 @@ import {Property} from 'src/types/property';
 
 import PropertyElement from './property';
 import AddProperty from './add_property';
-import ManageFields from './manage_fields';
 
 const PropertyContainer = styled.div<{showAdd?: boolean}>`
     display: flex;
@@ -76,7 +75,6 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
                         objectType='post'
                         onOpenChange={setAddOpen}
                     />
-                    <ManageFields/>
                 </> : null}
             </PropertyContainer>
         </IntlProvider>

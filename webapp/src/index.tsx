@@ -5,6 +5,7 @@ import {GlobalState} from '@mattermost/types/lib/store';
 import {manifest} from 'src/manifest';
 import {PluginRegistry} from 'src/types/mattermost-webapp';
 import reducer from 'src/reducer';
+import {displayManageFieldsModal} from 'src/actions';
 import PostAttachment from 'src/components/post_attachment';
 
 export default class Plugin {
@@ -12,6 +13,7 @@ export default class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         registry.registerReducer(reducer);
         registry.registerPostMessageAttachmentComponent(PostAttachment);
+        registry.registerMainMenuAction('Manage Fields', () => store.dispatch(displayManageFieldsModal({})));
     }
 }
 
