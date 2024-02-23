@@ -194,6 +194,32 @@ func (p *propertyFieldStore) Update(propertyField app.PropertyField) error {
 	return nil
 }
 
+func (p *propertyFieldStore) Delete(id string) error {
+	if id == "" {
+		return errors.New("id cannot be blank")
+	}
+
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	_, err = p.store.execBuilder(tx, sq.
+		Delete("PROP_PropertyField").
+		Where(sq.Eq{"ID": id}))
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to delete property field with id '%s'", id)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return errors.Wrap(err, "could not commit transaction")
+	}
+
+	return err
+}
+
 func toSQLPropertyField(propertyField app.PropertyField) (*sqlPropertyField, error) {
 	valuesJSON, err := json.Marshal(propertyField.Values)
 	if err != nil {

@@ -35,6 +35,7 @@ func NewPropertyFieldHandler(router *mux.Router, propertyFieldService app.Proper
 
 	propertyFieldRouter.HandleFunc("", withContext(handler.createPropertyField)).Methods(http.MethodPost)
 	propertyFieldRouter.HandleFunc("/{id}", withContext(handler.updatePropertyField)).Methods(http.MethodPut)
+	propertyFieldRouter.HandleFunc("/{id}", withContext(handler.deletePropertyField)).Methods(http.MethodDelete)
 	propertyFieldRouter.HandleFunc("/autocomplete", withContext(handler.getPropertyFieldsAutoComplete)).Methods(http.MethodGet)
 
 	return handler
@@ -161,6 +162,31 @@ func (h *PropertyFieldHandler) updatePropertyField(c *Context, w http.ResponseWr
 	}*/
 
 	err := h.propertyFieldService.Update(propertyField)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *PropertyFieldHandler) deletePropertyField(c *Context, w http.ResponseWriter, r *http.Request) {
+	//userID := r.Header.Get("Mattermost-User-ID")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be set", nil)
+		return
+	}
+
+	//TODO: implement permission check for property field
+	/*if !h.PermissionsCheck(w, c.logger, h.permissions.PropertyFieldDelete(userID, propertyField)) {
+		return
+	}*/
+
+	err := h.propertyFieldService.Delete(id)
 	if err != nil {
 		h.HandleError(w, c.logger, err)
 		return

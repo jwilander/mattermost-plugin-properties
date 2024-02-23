@@ -33,3 +33,7 @@ func (ps *propertyFieldService) GetFields(filter PropertyFieldFilterOptions) ([]
 func (ps *propertyFieldService) Update(propertyField PropertyField) error {
 	return ps.store.Update(propertyField)
 }
+
+func (ps *propertyFieldService) Delete(id string) error {
+	return ps.store.Delete(id)
+}
