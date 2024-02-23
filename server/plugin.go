@@ -24,6 +24,7 @@ type Plugin struct {
 	pluginAPI            *pluginapi.Client
 	propertyService      app.PropertyService
 	propertyFieldService app.PropertyFieldService
+	viewService          app.ViewService
 	permissions          *app.PermissionsService
 }
 
@@ -43,9 +44,11 @@ func (p *Plugin) OnActivate() error {
 
 	propertyFieldStore := sqlstore.NewPropertyFieldStore(apiClient, sqlStore)
 	propertyStore := sqlstore.NewPropertyStore(apiClient, sqlStore)
+	viewStore := sqlstore.NewViewStore(apiClient, sqlStore)
 
 	p.propertyFieldService = app.NewPropertyFieldService(propertyFieldStore, pluginAPIClient)
 	p.propertyService = app.NewPropertyService(propertyStore, p.propertyFieldService, pluginAPIClient)
+	p.viewService = app.NewViewService(viewStore, pluginAPIClient)
 
 	mutex, err := cluster.NewMutex(p.API, "PROP_dbMutex")
 	if err != nil {
@@ -72,6 +75,14 @@ func (p *Plugin) OnActivate() error {
 	api.NewPropertyFieldHandler(
 		p.handler.APIRouter,
 		p.propertyFieldService,
+		pluginAPIClient,
+		p.config,
+		p.permissions,
+	)
+
+	api.NewViewHandler(
+		p.handler.APIRouter,
+		p.viewService,
 		pluginAPIClient,
 		p.config,
 		p.permissions,
