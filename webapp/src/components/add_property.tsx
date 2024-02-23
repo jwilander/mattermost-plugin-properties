@@ -11,7 +11,7 @@ import {useUpdateEffect} from 'react-use';
 import {createProperty, fetchPropertyFieldsForTerm} from 'src/client';
 import Dropdown from 'src/components/dropdown';
 import {Property, PropertyField} from 'src/types/property';
-import {receivedProperty} from '@/actions';
+import {receivedProperty} from 'src/actions';
 
 type ActionTypes = | 'clear' | 'create-option' | 'deselect-option' | 'pop-value' | 'remove-value' | 'select-option' | 'set-value';
 
@@ -95,7 +95,7 @@ export default function AddProperty(props: Props) {
         props.onOpenChange?.(isOpen);
     }, [isOpen]);
 
-    const onSelectedChange = async (value: Option | undefined, action: ActionObj) => {
+    const onSelectedChange = async (value: Option | undefined) => {
         if (value == null) {
             return;
         }
