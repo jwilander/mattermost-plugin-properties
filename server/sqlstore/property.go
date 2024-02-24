@@ -106,6 +106,10 @@ func (p *propertyStore) GetByObjectID(objectID string) ([]app.Property, error) {
 		return []app.Property{}, errors.Wrapf(err, "failed to get property by object_id '%s'", objectID)
 	}
 
+	if err = tx.Commit(); err != nil {
+		return nil, errors.Wrap(err, "could not commit transaction")
+	}
+
 	properties := make([]app.Property, len(rawProperties))
 	for i, rp := range rawProperties {
 		properties[i], err = toProperty(rp)

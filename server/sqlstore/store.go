@@ -2,6 +2,8 @@ package sqlstore
 
 import (
 	"database/sql"
+	"strconv"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -86,7 +88,7 @@ func (sqlStore *SQLStore) selectBuilder(q sqlx.Queryer, dest interface{}, b buil
 		return errors.Wrap(err, "failed to build sql")
 	}
 
-	sqlString = sqlStore.db.Rebind(sqlString)
+	sqlString = Rebind(sqlx.BindType(sqlStore.db.DriverName()), sqlString)
 
 	return sqlx.Select(q, dest, sqlString, args...)
 }
@@ -126,4 +128,50 @@ func (sqlStore *SQLStore) finalizeTransaction(tx *sqlx.Tx) {
 	if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
 		logrus.WithError(err).Error("Failed to rollback transaction")
 	}
+}
+
+// Below is copied from sqlx/bind.go to handle escaping question marks.
+// TODO: make work for QUESTION bind types (eg mysql)
+const (
+	UNKNOWN = iota
+	QUESTION
+	DOLLAR
+	NAMED
+	AT
+)
+
+func Rebind(bindType int, query string) string {
+	switch bindType {
+	case QUESTION, UNKNOWN:
+		return query
+	}
+
+	// Add space enough for 10 params before we have to allocate
+	rqb := make([]byte, 0, len(query)+10)
+
+	var i, j int
+
+	for i = strings.Index(query, "?"); i != -1; i = strings.Index(query, "?") {
+		rqb = append(rqb, query[:i]...)
+
+		if i+1 < len(query) && query[i+1] == '?' {
+			rqb = append(rqb, '?')
+			query = query[i+2:]
+		} else {
+			switch bindType {
+			case DOLLAR:
+				rqb = append(rqb, '$')
+			case NAMED:
+				rqb = append(rqb, ':', 'a', 'r', 'g')
+			case AT:
+				rqb = append(rqb, '@', 'p')
+			}
+			j++
+			rqb = strconv.AppendInt(rqb, int64(j), 10)
+			query = query[i+1:]
+		}
+
+	}
+
+	return string(append(rqb, query...))
 }
