@@ -1,6 +1,7 @@
 package sqlstore
 
 import (
+	"database/sql"
 	"encoding/json"
 
 	"github.com/jwilander/mattermost-plugin-properties/server/app"
@@ -78,6 +79,94 @@ func (p *viewStore) Create(view app.View) (id string, err error) {
 	}
 
 	return rawView.ID, nil
+}
+
+func (p *viewStore) Get(id string) (app.View, error) {
+	if id == "" {
+		return app.View{}, errors.New("id cannot be blank")
+	}
+
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return app.View{}, errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	var rawView sqlView
+	err = p.store.getBuilder(tx, &rawView, p.viewSelect.Where(sq.Eq{"v.ID": id}))
+	if err == sql.ErrNoRows {
+		return app.View{}, errors.Wrapf(app.ErrNotFound, "no view exists for id '%s'", id)
+	} else if err != nil {
+		return app.View{}, errors.Wrapf(err, "failed to get view by id '%s'", id)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return app.View{}, errors.Wrap(err, "could not commit transaction")
+	}
+
+	view, err := toView(rawView)
+	if err != nil {
+		return app.View{}, err
+	}
+
+	return view, nil
+}
+
+func (p *viewStore) QueryObjects(query app.Query) ([]string, error) {
+	if len(query.Fields) == 0 {
+		return []string{}, errors.New("Fields must have at least one value")
+	}
+
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return []string{}, errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	where := sq.And{}
+	for id, fields := range query.Fields {
+		if len(fields) == 0 {
+			continue
+		}
+
+		if len(fields) == 1 {
+			where = append(where, sq.And{sq.Eq{"p.PropertyFieldID": id}, sq.Expr("p.Value::jsonb ?? ?", fields[0])})
+			continue
+		}
+
+		fieldsList := "p.Value::jsonb ??| array[? "
+		fieldsInterface := make([]interface{}, len(fields))
+		for i, value := range fields {
+			if i < len(fields)-1 {
+				fieldsList += ", ?"
+			}
+			fieldsInterface[i] = value
+		}
+		fieldsList += "]"
+		where = append(where, sq.And{sq.Eq{"p.PropertyFieldID": id}, sq.Expr(fieldsList, fieldsInterface...)})
+	}
+
+	q := sq.
+		Select(
+			"p.ID",
+		).
+		From("PROP_Property p").
+		Where(where)
+
+	var ids []string
+	err = p.store.selectBuilder(tx, &ids, q)
+
+	if err == sql.ErrNoRows {
+		return []string{}, errors.Wrap(app.ErrNotFound, "no objects exist for query")
+	} else if err != nil {
+		return []string{}, errors.Wrap(err, "failed to get objects by query")
+	}
+
+	if err = tx.Commit(); err != nil {
+		return nil, errors.Wrap(err, "could not commit transaction")
+	}
+
+	return ids, nil
 }
 
 func toSQLView(view app.View) (*sqlView, error) {

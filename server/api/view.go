@@ -8,6 +8,7 @@ import (
 	"github.com/jwilander/mattermost-plugin-properties/server/app"
 	"github.com/jwilander/mattermost-plugin-properties/server/config"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/pkg/errors"
 )
 
 // ViewHandler is the API handler.
@@ -32,6 +33,7 @@ func NewViewHandler(router *mux.Router, viewService app.ViewService, api *plugin
 	viewRouter := router.PathPrefix("/view").Subrouter()
 
 	viewRouter.HandleFunc("", withContext(handler.createView)).Methods(http.MethodPost)
+	viewRouter.HandleFunc("/{id}/query", withContext(handler.queryView)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -68,4 +70,24 @@ func (h *ViewHandler) createView(c *Context, w http.ResponseWriter, r *http.Requ
 	w.Header().Add("Location", makeAPIURL(h.pluginAPI, "view/%s", id))
 
 	ReturnJSON(w, &result, http.StatusCreated)
+}
+
+func (h *ViewHandler) queryView(c *Context, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "invalid id parameter", errors.New("objectID cannot be empty"))
+		return
+	}
+
+	//TODO: implement permission check
+
+	objects, err := h.viewService.GetObjectsForView(id)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	ReturnJSON(w, objects, http.StatusOK)
 }
