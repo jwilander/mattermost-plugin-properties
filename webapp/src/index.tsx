@@ -1,3 +1,4 @@
+import React from 'react';
 import {Store, Action} from 'redux';
 
 import {GlobalState} from '@mattermost/types/lib/store';
@@ -7,6 +8,7 @@ import {PluginRegistry} from 'src/types/mattermost-webapp';
 import reducer from 'src/reducer';
 import {displayManageFieldsModal, receivedProperty} from 'src/actions';
 import PostAttachment from 'src/components/post_attachment';
+import View from 'src/components/view';
 import {createProperty, fetchPropertyFieldsForTerm} from 'src/client';
 import {Property, PropertyField} from 'src/types/property';
 import {ReceivedProperty} from 'src/types/actions';
@@ -47,6 +49,8 @@ export default class Plugin {
                 makeCreateProperty(field),
             );
         });
+
+        registry.registerLeftHandSidebarItem('Test View', '1234', View);
     }
 }
 
