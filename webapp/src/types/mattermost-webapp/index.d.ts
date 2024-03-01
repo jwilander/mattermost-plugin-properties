@@ -6,6 +6,7 @@ export interface PluginRegistry {
     registerPostMessageAttachmentComponent(component: React.ElementType)
     registerMainMenuAction(text: string, action: () => void, mobileIcon?: React.ElementType)
     registerPostDropdownSubMenuAction(text: string, action?: PostMenuAction, filter?: PostMenuFilter) : {id: string, rootRegisterMenuItem: (innerText: string, innerAction: PostMenuAction, innerFilter?: PostMenuFilter) => void}
+    registerLeftHandSidebarItem(text: string, route: string, component: React.Element)
 
     // Add more if needed from https://developers.mattermost.com/extend/plugins/webapp/reference
 }
