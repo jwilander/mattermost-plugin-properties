@@ -8,14 +8,16 @@ import (
 )
 
 type viewService struct {
-	store ViewStore
-	api   *pluginapi.Client
+	store       ViewStore
+	memberStore ViewMemberStore
+	api         *pluginapi.Client
 }
 
-func NewViewService(store ViewStore, api *pluginapi.Client) ViewService {
+func NewViewService(store ViewStore, memberStore ViewMemberStore, api *pluginapi.Client) ViewService {
 	return &viewService{
-		store: store,
-		api:   api,
+		store:       store,
+		memberStore: memberStore,
+		api:         api,
 	}
 }
 
@@ -49,4 +51,12 @@ func (vs *viewService) GetObjectsForView(id string) (Objects, error) {
 
 	fmt.Println(ids)
 	return Objects{}, nil
+}
+
+func (vs *viewService) AddUserToView(userID string, viewID string) error {
+	return vs.memberStore.Create(ViewMember{UserID: userID, ViewID: viewID})
+}
+
+func (vs *viewService) GetForUser(userID string) ([]View, error) {
+	return vs.store.GetForUser(userID)
 }

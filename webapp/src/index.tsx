@@ -3,13 +3,15 @@ import {Store, Action} from 'redux';
 
 import {GlobalState} from '@mattermost/types/lib/store';
 
+import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
+
 import {manifest} from 'src/manifest';
 import {PluginRegistry} from 'src/types/mattermost-webapp';
 import reducer from 'src/reducer';
 import {displayManageFieldsModal, receivedProperty} from 'src/actions';
 import PostAttachment from 'src/components/post_attachment';
 import View from 'src/components/view';
-import {createProperty, fetchPropertyFieldsForTerm} from 'src/client';
+import {createProperty, fetchPropertyFieldsForTerm, fetchViewsForUser} from 'src/client';
 import {Property, PropertyField} from 'src/types/property';
 import {ReceivedProperty} from 'src/types/actions';
 
@@ -50,7 +52,9 @@ export default class Plugin {
             );
         });
 
-        registry.registerLeftHandSidebarItem('Test View', '1234', View);
+        const views = await fetchViewsForUser(getCurrentUserId(store.getState()));
+
+        views.forEach((view) => registry.registerLeftHandSidebarItem(view.title, view.id, () => <View id={view.id}/>));
     }
 }
 

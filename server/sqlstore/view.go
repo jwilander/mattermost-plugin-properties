@@ -112,6 +112,50 @@ func (p *viewStore) Get(id string) (app.View, error) {
 	return view, nil
 }
 
+func (p *viewStore) GetForUser(userID string) ([]app.View, error) {
+	if userID == "" {
+		return []app.View{}, errors.New("user id cannot be blank")
+	}
+
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return []app.View{}, errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	permissionsAndFilter := sq.Expr(`(
+		EXISTS(SELECT 1
+				FROM PROP_ViewMember as vm
+				WHERE vm.ViewID = v.ID
+				AND vm.UserID = ?)
+		OR NOT EXISTS(SELECT 1
+				FROM PROP_ViewMember as vm
+				WHERE vm.ViewID = v.ID)
+	)`, userID)
+
+	var rawViews []sqlView
+	err = p.store.selectBuilder(tx, &rawViews, p.viewSelect.Where(permissionsAndFilter))
+	if err == sql.ErrNoRows {
+		return []app.View{}, errors.Wrapf(app.ErrNotFound, "no views exist for user id '%s'", userID)
+	} else if err != nil {
+		return []app.View{}, errors.Wrapf(err, "failed to get view by id '%s'", userID)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return []app.View{}, errors.Wrap(err, "could not commit transaction")
+	}
+
+	views := make([]app.View, len(rawViews))
+	for i, rawView := range rawViews {
+		views[i], err = toView(rawView)
+		if err != nil {
+			return []app.View{}, err
+		}
+	}
+
+	return views, nil
+}
+
 func (p *viewStore) QueryObjects(query app.Query) ([]string, error) {
 	if len(query.Fields) == 0 {
 		return []string{}, errors.New("Fields must have at least one value")
