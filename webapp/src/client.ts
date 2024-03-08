@@ -5,7 +5,7 @@ import {Client4} from 'mattermost-redux/client';
 import {ClientError} from '@mattermost/client';
 
 import {manifest} from './manifest';
-import {Property, PropertyField} from './types/property';
+import {Property, PropertyField, View, ViewQueryResults} from './types/property';
 
 let siteURL = '';
 let basePath = '';
@@ -67,6 +67,18 @@ export async function fetchPropertyFieldsForTerm(term: string) {
 
 export async function updatePropertyField(id: string, type: string, name: string, values: string[] | null | undefined) {
     await doPut(`${apiUrl}/field/${id}`, JSON.stringify({name, type, values}));
+}
+
+export async function fetchObjectsForView(id: string) {
+    const data = await doGet(`${apiUrl}/view/${id}/query`);
+
+    return data as ViewQueryResults;
+}
+
+export async function fetchViewsForUser(userID: string) {
+    const data = await doGet(`${apiUrl}/view/user/${userID}`);
+
+    return data as View[];
 }
 
 export const doGet = async <TData = any>(url: string) => {

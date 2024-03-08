@@ -34,6 +34,7 @@ func NewViewHandler(router *mux.Router, viewService app.ViewService, api *plugin
 
 	viewRouter.HandleFunc("", withContext(handler.createView)).Methods(http.MethodPost)
 	viewRouter.HandleFunc("/{id}/query", withContext(handler.queryView)).Methods(http.MethodGet)
+	viewRouter.HandleFunc("/user/{id}", withContext(handler.getForUser)).Methods(http.MethodGet)
 
 	return handler
 }
@@ -90,4 +91,24 @@ func (h *ViewHandler) queryView(c *Context, w http.ResponseWriter, r *http.Reque
 	}
 
 	ReturnJSON(w, objects, http.StatusOK)
+}
+
+func (h *ViewHandler) getForUser(c *Context, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == "" {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "invalid id parameter", errors.New("userID cannot be empty"))
+		return
+	}
+
+	//TODO: implement permission check
+
+	views, err := h.viewService.GetForUser(id)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	ReturnJSON(w, views, http.StatusOK)
 }

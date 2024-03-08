@@ -45,10 +45,11 @@ func (p *Plugin) OnActivate() error {
 	propertyFieldStore := sqlstore.NewPropertyFieldStore(apiClient, sqlStore)
 	propertyStore := sqlstore.NewPropertyStore(apiClient, sqlStore)
 	viewStore := sqlstore.NewViewStore(apiClient, sqlStore)
+	viewMemberStore := sqlstore.NewViewMemberStore(apiClient, sqlStore)
 
 	p.propertyFieldService = app.NewPropertyFieldService(propertyFieldStore, pluginAPIClient)
 	p.propertyService = app.NewPropertyService(propertyStore, p.propertyFieldService, pluginAPIClient)
-	p.viewService = app.NewViewService(viewStore, pluginAPIClient)
+	p.viewService = app.NewViewService(viewStore, viewMemberStore, pluginAPIClient)
 
 	mutex, err := cluster.NewMutex(p.API, "PROP_dbMutex")
 	if err != nil {

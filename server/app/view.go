@@ -11,6 +11,11 @@ type View struct {
 	CreateAt int64  `json:"create_at"`
 }
 
+type ViewMember struct {
+	ViewID string `json:"view_id"`
+	UserID string `json:"user_id"`
+}
+
 type Query struct {
 	Fields map[string][]string `json:"fields"`
 }
@@ -23,9 +28,16 @@ type ViewStore interface {
 	Create(view View) (string, error)
 	QueryObjects(query Query) ([]string, error)
 	Get(id string) (View, error)
+	GetForUser(userID string) ([]View, error)
+}
+
+type ViewMemberStore interface {
+	Create(member ViewMember) error
 }
 
 type ViewService interface {
 	Create(view View) (string, error)
 	GetObjectsForView(id string) (Objects, error)
+	AddUserToView(userID string, viewID string) error
+	GetForUser(userId string) ([]View, error)
 }
