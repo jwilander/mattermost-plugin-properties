@@ -79,12 +79,15 @@ func (h *PropertyFieldHandler) validPropertyField(w http.ResponseWriter, logger 
 }
 
 func (h *PropertyFieldHandler) createPropertyField(c *Context, w http.ResponseWriter, r *http.Request) {
-	//userID := r.Header.Get("Mattermost-User-ID")
+	userID := r.Header.Get("Mattermost-User-ID")
+
 	var propertyField app.PropertyField
 	if err := json.NewDecoder(r.Body).Decode(&propertyField); err != nil {
 		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "unable to decode property_field", err)
 		return
 	}
+
+	propertyField.UpdateBy = userID
 
 	if propertyField.ID != "" {
 		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be blank", nil)
@@ -121,11 +124,14 @@ const maxPropertyFieldsToAutoComplete = 200
 func (h *PropertyFieldHandler) getPropertyFieldsAutoComplete(c *Context, w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	searchTerm := query.Get("term")
+	teamID := query.Get("team_id")
 
 	fields, err := h.propertyFieldService.GetFields(app.PropertyFieldFilterOptions{
-		SearchTerm: searchTerm,
-		Page:       0,
-		PerPage:    maxPropertyFieldsToAutoComplete,
+		TeamID:                   teamID,
+		ExcludeHigherLevelFields: false,
+		SearchTerm:               searchTerm,
+		Page:                     0,
+		PerPage:                  maxPropertyFieldsToAutoComplete,
 	})
 	if err != nil {
 		h.HandleError(w, c.logger, err)
@@ -136,7 +142,7 @@ func (h *PropertyFieldHandler) getPropertyFieldsAutoComplete(c *Context, w http.
 }
 
 func (h *PropertyFieldHandler) updatePropertyField(c *Context, w http.ResponseWriter, r *http.Request) {
-	//userID := r.Header.Get("Mattermost-User-ID")
+	userID := r.Header.Get("Mattermost-User-ID")
 
 	var propertyField app.PropertyField
 	if err := json.NewDecoder(r.Body).Decode(&propertyField); err != nil {
@@ -146,6 +152,7 @@ func (h *PropertyFieldHandler) updatePropertyField(c *Context, w http.ResponseWr
 
 	vars := mux.Vars(r)
 	propertyField.ID = vars["id"]
+	propertyField.UpdateBy = userID
 
 	if propertyField.ID == "" {
 		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "id must be set", nil)

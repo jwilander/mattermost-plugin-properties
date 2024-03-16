@@ -21,7 +21,7 @@ type Query struct {
 }
 
 type Objects struct {
-	Posts []model.Post `json:"posts"`
+	Posts []*model.Post `json:"posts"`
 }
 
 type ViewStore interface {

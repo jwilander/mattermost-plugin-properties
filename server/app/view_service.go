@@ -50,7 +50,14 @@ func (vs *viewService) GetObjectsForView(id string) (Objects, error) {
 	}
 
 	fmt.Println(ids)
-	return Objects{}, nil
+
+	posts, err := vs.api.Post.GetPostsById(ids)
+	if err != nil {
+		//TODO: handle not found better
+		return Objects{}, errors.Wrap(err, "could not get posts")
+	}
+
+	return Objects{Posts: posts}, nil
 }
 
 func (vs *viewService) AddUserToView(userID string, viewID string) error {

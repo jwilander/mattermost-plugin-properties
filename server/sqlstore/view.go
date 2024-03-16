@@ -190,9 +190,10 @@ func (p *viewStore) QueryObjects(query app.Query) ([]string, error) {
 		where = append(where, sq.And{sq.Eq{"p.PropertyFieldID": id}, sq.Expr(fieldsList, fieldsInterface...)})
 	}
 
+	//TODO: handle different object types
 	q := sq.
 		Select(
-			"p.ID",
+			"p.ObjectID",
 		).
 		From("PROP_Property p").
 		Where(where)

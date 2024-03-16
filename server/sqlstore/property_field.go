@@ -32,6 +32,8 @@ func NewPropertyFieldStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.Pr
 	propertyFieldSelect := sqlStore.builder.
 		Select(
 			"p.ID",
+			"p.TeamID",
+			"p.UpdateAt",
 			"p.Name",
 			"p.Type",
 			"p.Values",
@@ -51,6 +53,7 @@ func (p *propertyFieldStore) Create(propertyField app.PropertyField) (id string,
 		return "", errors.New("ID should be empty")
 	}
 	propertyField.ID = model.NewId()
+	propertyField.UpdateAt = model.GetMillis()
 
 	rawPropertyField, err := toSQLPropertyField(propertyField)
 	if err != nil {
@@ -66,10 +69,13 @@ func (p *propertyFieldStore) Create(propertyField app.PropertyField) (id string,
 	_, err = p.store.execBuilder(tx, sq.
 		Insert("PROP_PropertyField").
 		SetMap(map[string]interface{}{
-			"ID":     rawPropertyField.ID,
-			"Name":   rawPropertyField.Name,
-			"Type":   rawPropertyField.Type,
-			"Values": rawPropertyField.ValuesJSON,
+			"ID":       rawPropertyField.ID,
+			"TeamID":   rawPropertyField.TeamID,
+			"UpdateAt": rawPropertyField.UpdateAt,
+			"UpdateBy": rawPropertyField.UpdateBy,
+			"Name":     rawPropertyField.Name,
+			"Type":     rawPropertyField.Type,
+			"Values":   rawPropertyField.ValuesJSON,
 		}))
 	if err != nil {
 		return "", errors.Wrap(err, "failed to store new propertyField")
@@ -113,6 +119,9 @@ func (p *propertyFieldStore) GetFields(filter app.PropertyFieldFilterOptions) ([
 	queryForResults := p.store.builder.
 		Select(
 			"p.ID",
+			"p.TeamID",
+			"p.UpdateAt",
+			"p.UpdateBy",
 			"p.Name",
 			"p.Type",
 			"p.Values",
@@ -131,6 +140,14 @@ func (p *propertyFieldStore) GetFields(filter app.PropertyFieldFilterOptions) ([
 		}
 
 		queryForResults = queryForResults.Where(sq.Like{column: fmt.Sprint("%", searchString, "%")})
+	}
+
+	if filter.TeamID != "" {
+		if filter.ExcludeHigherLevelFields {
+			queryForResults = queryForResults.Where(sq.Eq{"TeamID": filter.TeamID})
+		} else {
+			queryForResults = queryForResults.Where(sq.Or{sq.Eq{"TeamID": filter.TeamID}, sq.Eq{"TeamID": ""}})
+		}
 	}
 
 	page := filter.Page
@@ -170,6 +187,8 @@ func (p *propertyFieldStore) Update(propertyField app.PropertyField) error {
 	}
 	defer p.store.finalizeTransaction(tx)
 
+	propertyField.UpdateAt = model.GetMillis()
+
 	rawPropertyField, err := toSQLPropertyField(propertyField)
 	if err != nil {
 		return err
@@ -178,8 +197,10 @@ func (p *propertyFieldStore) Update(propertyField app.PropertyField) error {
 	_, err = p.store.execBuilder(tx, sq.
 		Update("PROP_PropertyField").
 		SetMap(map[string]interface{}{
-			"Name":   rawPropertyField.Name,
-			"Values": rawPropertyField.ValuesJSON,
+			"UpdateAt": rawPropertyField.UpdateAt,
+			"UpdateBy": rawPropertyField.UpdateBy,
+			"Name":     rawPropertyField.Name,
+			"Values":   rawPropertyField.ValuesJSON,
 		}).
 		Where(sq.Eq{"ID": rawPropertyField.ID}))
 
