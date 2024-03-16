@@ -2,7 +2,20 @@
 // See LICENSE.txt for license information.
 
 export const {
+    formatText,
+    messageHtmlToComponent,
+
+    // @ts-ignore
+} = global.PostUtils ?? {};
+
+export const {
     modals,
 
 // @ts-ignore
 }: {modals: any} = global.WebappUtils ?? {};
+
+export const {
+    Timestamp,
+
+    // @ts-ignore
+} = global.Components ?? {};
