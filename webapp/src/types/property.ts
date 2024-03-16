@@ -17,6 +17,9 @@ export interface Property {
 
 export interface PropertyField {
     id: string;
+    team_id: string;
+    update_at: number;
+    update_by: string;
     type: string;
     name: string;
     values: string[] | null | undefined;
