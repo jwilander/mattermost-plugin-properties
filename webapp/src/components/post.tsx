@@ -3,13 +3,14 @@
 
 import React from 'react';
 import styled from 'styled-components';
-
 import {useSelector} from 'react-redux';
+import {Link} from 'react-router-dom';
 
 import {GlobalState} from '@mattermost/types/lib/store';
 import {UserProfile} from '@mattermost/types/lib/users';
 
 import {getTeammateNameDisplaySetting} from 'mattermost-redux/selectors/entities/preferences';
+import {getCurrentRelativeTeamUrl} from 'mattermost-redux/selectors/entities/teams';
 import {getUser} from 'mattermost-redux/selectors/entities/users';
 import {Client4} from 'mattermost-redux/client';
 import {displayUsername} from 'mattermost-redux/utils/user_utils';
@@ -57,12 +58,14 @@ const Post = ({id, create_at, message, userID}: PostProps) => {
         hasPluginTooltips: true,
     };
 
+    const teamURL = useSelector(getCurrentRelativeTeamUrl);
+
     return (
         <Container key={`post-${id}`}>
             <Header>
                 <ProfilePic src={authorProfileUrl}/>
                 <Author>{authorUserName}</Author>
-                <Date>
+                <Date to={`${teamURL}/pl/${id}`}>
                     <Timestamp
                         value={create_at}
                         units={REL_UNITS}
@@ -103,9 +106,9 @@ const Author = styled.span`
     margin-right: 6px;
 `;
 
-const Date = styled.span`
+const Date = styled(Link)`
     font-size: 12px;
-    color: rgba(var(--center-channel-color-rgb), 0.56);
+    color: rgba(var(--center-channel-color-rgb), 0.56) !important;
 `;
 
 const Body = styled.div`
