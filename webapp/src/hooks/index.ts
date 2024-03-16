@@ -1,12 +1,15 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {useEffect} from 'react';
+import {useEffect, useMemo} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
+import {GlobalState} from '@mattermost/types/store';
+
 import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
-import {getProfilesInCurrentTeam} from 'mattermost-redux/selectors/entities/users';
-import {getProfilesInTeam} from 'mattermost-redux/actions/users';
+import {getProfilesInCurrentTeam, getUser} from 'mattermost-redux/selectors/entities/users';
+import {getProfilesByIds, getProfilesInTeam} from 'mattermost-redux/actions/users';
+import {UserProfile} from 'mattermost-redux/types/users';
 
 const PROFILE_CHUNK_SIZE = 200;
 
@@ -59,4 +62,25 @@ const lockProfilesInChannelFetch = new Set<string>();
 export function clearLocks() {
     lockProfilesInTeamFetch.clear();
     lockProfilesInChannelFetch.clear();
+}
+
+type StringToUserProfileFn = (id: string) => UserProfile;
+
+export function useEnsureProfile(userId: string) {
+    const userIds = useMemo(() => [userId], [userId]);
+    useEnsureProfiles(userIds);
+}
+
+export function useEnsureProfiles(userIds: string[]) {
+    const dispatch = useDispatch();
+    const getUserFromStore = useSelector<GlobalState, StringToUserProfileFn>(
+        (state) => (id: string) => getUser(state, id),
+    );
+
+    useEffect(() => {
+        const unknownIds = userIds.filter((userId) => !getUserFromStore(userId));
+        if (unknownIds.length > 0) {
+            dispatch(getProfilesByIds(unknownIds));
+        }
+    }, [userIds]);
 }
