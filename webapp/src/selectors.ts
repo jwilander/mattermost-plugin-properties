@@ -17,3 +17,5 @@ export const getPropertiesForObject = (objectId: string) => {
         return getProperties(state)[objectId] || [];
     };
 };
+
+export const getPropertyFields = (state: GlobalState) => pluginState(state).propertyFields;

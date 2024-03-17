@@ -26,7 +26,8 @@ export interface PropertyField {
 }
 
 export interface ViewQuery {
-    fields: Record<string, string[]>;
+    includes: Record<string, string[]>;
+    excludes: Record<string, string[]>;
 }
 
 export interface View {

@@ -18,7 +18,7 @@ type PropertyProps = {
     name: string;
     type: PropertyTypeEnum;
     value: string[];
-    possibleValues: string[] | null;
+    possibleValues: string[] | null | undefined;
 }
 
 const PropertyBlock = styled.div`

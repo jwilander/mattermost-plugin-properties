@@ -1,8 +1,6 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/pkg/errors"
 )
@@ -26,7 +24,7 @@ func (vs *viewService) Create(view View) (string, error) {
 		return "", errors.New("Title should not be blank")
 	}
 
-	if len(view.Query.Fields) == 0 {
+	if len(view.Query.Excludes) == 0 && len(view.Query.Includes) == 0 && len(view.Query.Exists) == 0 {
 		return "", errors.New("Query fields should not be blank")
 	}
 
@@ -38,18 +36,16 @@ func (vs *viewService) Create(view View) (string, error) {
 	return id, nil
 }
 
-func (vs *viewService) GetObjectsForView(id string) (Objects, error) {
+func (vs *viewService) GetObjectsForView(id string, page int, perPage int) (Objects, error) {
 	view, err := vs.store.Get(id)
 	if err != nil {
 		return Objects{}, errors.Wrap(err, "could not get view")
 	}
 
-	ids, err := vs.store.QueryObjects(view.Query)
+	ids, err := vs.store.QueryObjects(view.Query, page, perPage)
 	if err != nil {
 		return Objects{}, errors.Wrap(err, "could not query objects")
 	}
-
-	fmt.Println(ids)
 
 	posts, err := vs.api.Post.GetPostsById(ids)
 	if err != nil {

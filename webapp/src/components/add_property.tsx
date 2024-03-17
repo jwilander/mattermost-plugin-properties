@@ -11,7 +11,7 @@ import {useUpdateEffect} from 'react-use';
 import {createProperty, fetchPropertyFieldsForTerm} from 'src/client';
 import Dropdown from 'src/components/dropdown';
 import {Property, PropertyField} from 'src/types/property';
-import {receivedProperty} from 'src/actions';
+import {receivedProperty, receivedPropertyFields} from 'src/actions';
 
 type ActionTypes = | 'clear' | 'create-option' | 'deselect-option' | 'pop-value' | 'remove-value' | 'select-option' | 'set-value';
 
@@ -80,14 +80,17 @@ export default function AddProperty(props: Props) {
     const [options, setOptions] = useState<Option[]>([]);
 
     async function fetchPropertyFields() {
-        //TODO: implement dispatch to redux store
         const fields = await fetchPropertyFieldsForTerm('');
+
+        dispatch(receivedPropertyFields(fields));
+
         const opts = fields.map((f) => ({value: f.id, label: f.name, field: f} as Option));
         setOptions(opts);
     }
 
     // Fill in the propertyFields on mount.
     useEffect(() => {
+        //TODO: don't fetch on every mount
         fetchPropertyFields();
     }, []);
 

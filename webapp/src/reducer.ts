@@ -3,19 +3,21 @@
 
 import {combineReducers} from 'redux';
 
-import {Property} from 'src/types/property';
+import {Property, PropertyField} from 'src/types/property';
 
 import {
     DELETED_PROPERTY,
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
     RECEIVED_PROPERTY_FIELD,
+    RECEIVED_PROPERTY_FIELDS,
     RECEIVED_PROPERTY_VALUE,
     DELETED_PROPERTY_FIELD,
     DeletedProperty,
     ReceivedPropertiesForObject,
     ReceivedProperty,
     ReceivedPropertyField,
+    ReceivedPropertyFields,
     ReceivedPropertyValue,
     DeletedPropertyField,
 
@@ -23,7 +25,27 @@ import {
 
 type TStateProperties = Record<Property['object_id'], Property[]>;
 
-function properties(state: TStateProperties = {}, action: ReceivedPropertiesForObject | ReceivedProperty | ReceivedPropertyField | ReceivedPropertyValue | DeletedProperty | DeletedPropertyField) {
+function handleReceivedPropertyField(state: TStateProperties, field: PropertyField): TStateProperties {
+    const nextState = {...state};
+    let changed = false;
+    Object.keys(state).forEach((objectID) => {
+        const nextProps = [...nextState[objectID]];
+        nextState[objectID].forEach((p, i) => {
+            //TODO: only update if updateat is newer
+            if (p.property_field_id === field.id) {
+                nextProps[i] = {...p, property_field_name: field.name, property_field_values: field.values};
+                changed = true;
+            }
+        });
+        nextState[objectID] = nextProps;
+    });
+    if (changed) {
+        return nextState;
+    }
+    return state;
+}
+
+function properties(state: TStateProperties = {}, action: ReceivedPropertiesForObject | ReceivedProperty | ReceivedPropertyField | ReceivedPropertyFields | ReceivedPropertyValue | DeletedProperty | DeletedPropertyField) {
     switch (action.type) {
     case RECEIVED_PROPERTIES_FOR_OBJECT: {
         const a = action as ReceivedPropertiesForObject;
@@ -52,22 +74,15 @@ function properties(state: TStateProperties = {}, action: ReceivedPropertiesForO
     case RECEIVED_PROPERTY_FIELD: {
         const a = action as ReceivedPropertyField;
         const f = a.field;
-        const nextState = {...state};
-        let changed = false;
-        Object.keys(state).forEach((objectID) => {
-            const nextProps = [...nextState[objectID]];
-            nextState[objectID].forEach((p, i) => {
-                if (p.property_field_id === f.id) {
-                    nextProps[i] = {...p, property_field_name: f.name, property_field_values: f.values};
-                    changed = true;
-                }
-            });
-            nextState[objectID] = nextProps;
+        return handleReceivedPropertyField(state, f);
+    }
+    case RECEIVED_PROPERTY_FIELDS: {
+        const a = action as ReceivedPropertyFields;
+        let nextState = state;
+        a.fields.forEach((f) => {
+            nextState = handleReceivedPropertyField(nextState, f);
         });
-        if (changed) {
-            return nextState;
-        }
-        return state;
+        return nextState;
     }
     case DELETED_PROPERTY: {
         const a = action as DeletedProperty;
@@ -128,8 +143,41 @@ function properties(state: TStateProperties = {}, action: ReceivedPropertiesForO
     }
 }
 
+type TStatePropertyFields = Record<PropertyField['id'], PropertyField>;
+
+function propertyFields(state: TStatePropertyFields = {}, action: ReceivedPropertyField | ReceivedPropertyFields | DeletedPropertyField) {
+    switch (action.type) {
+    case RECEIVED_PROPERTY_FIELD: {
+        const a = action as ReceivedPropertyField;
+        const nextState = {...state};
+        nextState[a.field.id] = a.field;
+        return nextState;
+    }
+    case RECEIVED_PROPERTY_FIELDS: {
+        const a = action as ReceivedPropertyFields;
+        const nextState = {...state};
+        a.fields.forEach((f) => {
+            nextState[f.id] = f;
+        });
+        return nextState;
+    }
+    case DELETED_PROPERTY_FIELD: {
+        const a = action as DeletedPropertyField;
+        if (state[a.id] == null) {
+            return state;
+        }
+        const nextState = {...state};
+        delete nextState[a.id];
+        return nextState;
+    }
+    default:
+        return state;
+    }
+}
+
 const reducer = combineReducers({
     properties,
+    propertyFields,
 });
 
 export default reducer;

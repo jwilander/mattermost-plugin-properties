@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/jwilander/mattermost-plugin-properties/server/app"
@@ -73,9 +74,23 @@ func (h *ViewHandler) createView(c *Context, w http.ResponseWriter, r *http.Requ
 	ReturnJSON(w, &result, http.StatusCreated)
 }
 
+const defaultQueryPerPage = 60
+
 func (h *ViewHandler) queryView(c *Context, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	query := r.URL.Query()
+	pageStr := query.Get("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		page = 0
+	}
+	perPageStr := query.Get("per_page")
+	perPage, err := strconv.Atoi(perPageStr)
+	if err != nil {
+		perPage = defaultQueryPerPage
+	}
 
 	if id == "" {
 		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "invalid id parameter", errors.New("objectID cannot be empty"))
@@ -84,7 +99,7 @@ func (h *ViewHandler) queryView(c *Context, w http.ResponseWriter, r *http.Reque
 
 	//TODO: implement permission check
 
-	objects, err := h.viewService.GetObjectsForView(id)
+	objects, err := h.viewService.GetObjectsForView(id, page, perPage)
 	if err != nil {
 		h.HandleError(w, c.logger, err)
 		return

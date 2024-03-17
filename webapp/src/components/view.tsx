@@ -1,14 +1,16 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useSelector} from 'react-redux';
 import styled from 'styled-components';
 
 import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
 import Post from 'src/components/post';
-import {ViewQuery} from '@/types/property';
+import {PropertyField, ViewQuery} from 'src/types/property';
+import {getPropertyFields} from 'src/selectors';
 
 const ViewContainer = styled.div`
     padding: 50px;
@@ -20,15 +22,9 @@ type ViewProps = {
     query: ViewQuery;
 }
 
-const queryToString = (query: ViewQuery) => {
-    const str = '';
-
-    //Object.keys(query.fields).forEach(())
-    return str;
-};
-
 const View = ({id, title, query}: ViewProps) => {
     const [posts, setPosts] = useState([] as PostType[]);
+    const fields = useSelector(getPropertyFields);
 
     useEffect(() => {
         getPostIdsForView(id);
@@ -42,10 +38,21 @@ const View = ({id, title, query}: ViewProps) => {
         setPosts(results.posts);
     }
 
+    const queryToString = useCallback(() => {
+        let lines = [] as string[];
+        if (query.includes) {
+            lines = Object.keys(query.includes).map((fid) => `${fields[fid] ? fields[fid].name : 'unknown'} includes ${query.includes[fid].length ? query.includes[fid] : 'any'}`);
+        }
+        if (query.excludes) {
+            lines = lines.concat(Object.keys(query.excludes).map((fid) => `${fields[fid] ? fields[fid].name : 'unknown'} excludes ${query.excludes[fid].length ? query.excludes[fid] : 'any'}`));
+        }
+        return lines.join(' && ');
+    }, [query, fields]);
+
     return (
         <ViewContainer>
             <Title>{title}</Title>
-            <Query>{'test'}</Query>
+            <Query>{queryToString()}</Query>
             <ObjectList>
                 {posts.map((p) => (
                     <Post

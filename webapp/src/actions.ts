@@ -9,6 +9,7 @@ import {
     RECEIVED_PROPERTIES_FOR_OBJECT,
     RECEIVED_PROPERTY,
     RECEIVED_PROPERTY_FIELD,
+    RECEIVED_PROPERTY_FIELDS,
     DELETED_PROPERTY,
     DELETED_PROPERTY_FIELD,
     RECEIVED_PROPERTY_VALUE,
@@ -18,6 +19,7 @@ import {
     DeletedPropertyField,
     ReceivedPropertyValue,
     ReceivedPropertyField,
+    ReceivedPropertyFields,
 } from 'src/types/actions';
 
 import {ManageFieldsModalProps, makeManageFieldsModal} from 'src/components/manage_fields_modal';
@@ -37,6 +39,11 @@ export const receivedProperty = (property: Property): ReceivedProperty => ({
 export const receivedPropertyField = (field: PropertyField): ReceivedPropertyField => ({
     type: RECEIVED_PROPERTY_FIELD,
     field,
+});
+
+export const receivedPropertyFields = (fields: PropertyField[]): ReceivedPropertyFields => ({
+    type: RECEIVED_PROPERTY_FIELDS,
+    fields,
 });
 
 export const deletedProperty = (id: string, objectID: string): DeletedProperty => ({

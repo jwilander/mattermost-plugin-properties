@@ -17,7 +17,9 @@ type ViewMember struct {
 }
 
 type Query struct {
-	Fields map[string][]string `json:"fields"`
+	Exists   map[string]bool     `json:"exists"`
+	Includes map[string][]string `json:"includes"`
+	Excludes map[string][]string `json:"excludes"`
 }
 
 type Objects struct {
@@ -26,7 +28,7 @@ type Objects struct {
 
 type ViewStore interface {
 	Create(view View) (string, error)
-	QueryObjects(query Query) ([]string, error)
+	QueryObjects(query Query, page int, perPage int) ([]string, error)
 	Get(id string) (View, error)
 	GetForUser(userID string) ([]View, error)
 }
@@ -37,7 +39,7 @@ type ViewMemberStore interface {
 
 type ViewService interface {
 	Create(view View) (string, error)
-	GetObjectsForView(id string) (Objects, error)
+	GetObjectsForView(id string, page int, perPage int) (Objects, error)
 	AddUserToView(userID string, viewID string) error
 	GetForUser(userId string) ([]View, error)
 }
