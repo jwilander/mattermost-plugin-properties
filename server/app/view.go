@@ -7,9 +7,15 @@ import (
 type View struct {
 	ID       string `json:"id"`
 	Title    string `json:"title"`
+	Type     string `json:"type"`
 	Query    Query  `json:"query" db:"-"`
 	CreateAt int64  `json:"create_at"`
 }
+
+const (
+	ViewTypeList   = "list"
+	ViewTypeKanban = "kanban"
+)
 
 type ViewMember struct {
 	ViewID string `json:"view_id"`
@@ -17,9 +23,10 @@ type ViewMember struct {
 }
 
 type Query struct {
-	Exists   map[string]bool     `json:"exists"`
-	Includes map[string][]string `json:"includes"`
-	Excludes map[string][]string `json:"excludes"`
+	Includes  map[string][]string `json:"includes"`
+	Excludes  map[string][]string `json:"excludes"`
+	ChannelID string              `json:"channel_id"`
+	TeamID    string              `json:"team_id"`
 }
 
 type Objects struct {

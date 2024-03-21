@@ -9,7 +9,7 @@ import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
 import Post from 'src/components/post';
-import {PropertyField, ViewQuery} from 'src/types/property';
+import {ViewQuery} from 'src/types/property';
 import {getPropertyFields} from 'src/selectors';
 
 const ViewContainer = styled.div`
@@ -40,8 +40,14 @@ const View = ({id, title, query}: ViewProps) => {
 
     const queryToString = useCallback(() => {
         let lines = [] as string[];
+        if (query.channel_id) {
+            lines.push(`Channel ID = '${query.channel_id}'`);
+        }
+        if (query.team_id) {
+            lines.push(`Team ID = '${query.channel_id}'`);
+        }
         if (query.includes) {
-            lines = Object.keys(query.includes).map((fid) => `${fields[fid] ? fields[fid].name : 'unknown'} includes ${query.includes[fid].length ? query.includes[fid] : 'any'}`);
+            lines = lines.concat(Object.keys(query.includes).map((fid) => `${fields[fid] ? fields[fid].name : 'unknown'} includes ${query.includes[fid].length ? query.includes[fid] : 'any'}`));
         }
         if (query.excludes) {
             lines = lines.concat(Object.keys(query.excludes).map((fid) => `${fields[fid] ? fields[fid].name : 'unknown'} excludes ${query.excludes[fid].length ? query.excludes[fid] : 'any'}`));

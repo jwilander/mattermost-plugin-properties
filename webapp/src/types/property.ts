@@ -28,11 +28,14 @@ export interface PropertyField {
 export interface ViewQuery {
     includes: Record<string, string[]>;
     excludes: Record<string, string[]>;
+    channel_id: string;
+    team_id: string;
 }
 
 export interface View {
     id: string;
     title: string;
+    type: string;
     query: ViewQuery;
     create_at: number;
 }

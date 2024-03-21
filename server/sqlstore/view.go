@@ -32,6 +32,7 @@ func NewViewStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.ViewStore {
 		Select(
 			"v.ID",
 			"v.Title",
+			"v.Type",
 			"v.CreateAt",
 			"v.Query",
 		).
@@ -68,6 +69,7 @@ func (p *viewStore) Create(view app.View) (id string, err error) {
 		SetMap(map[string]interface{}{
 			"ID":       rawView.ID,
 			"Title":    rawView.Title,
+			"Type":     rawView.Type,
 			"CreateAt": rawView.CreateAt,
 			"Query":    rawView.QueryJSON,
 		}))
@@ -158,7 +160,7 @@ func (p *viewStore) GetForUser(userID string) ([]app.View, error) {
 }
 
 func (p *viewStore) QueryObjects(query app.Query, page int, perPage int) ([]string, error) {
-	if len(query.Includes) == 0 && len(query.Excludes) == 0 && len(query.Exists) == 0 {
+	if len(query.Includes) == 0 && len(query.Excludes) == 0 {
 		return []string{}, errors.New("Fields must have at least one value")
 	}
 
@@ -215,6 +217,14 @@ func (p *viewStore) QueryObjects(query app.Query, page int, perPage int) ([]stri
 		}
 		fieldsList += "])"
 		where = append(where, sq.Expr(fieldsList, fieldsInterface...))
+	}
+
+	if query.ChannelID != "" {
+		where = append(where, sq.Eq{"p.ChannelID": query.ChannelID})
+	}
+
+	if query.TeamID != "" {
+		where = append(where, sq.Eq{"p.TeamID": query.TeamID})
 	}
 
 	if page < 0 {

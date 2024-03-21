@@ -1,8 +1,10 @@
 package app
 
 import (
-	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
 
 type viewService struct {
@@ -24,8 +26,12 @@ func (vs *viewService) Create(view View) (string, error) {
 		return "", errors.New("Title should not be blank")
 	}
 
-	if len(view.Query.Excludes) == 0 && len(view.Query.Includes) == 0 && len(view.Query.Exists) == 0 {
-		return "", errors.New("Query fields should not be blank")
+	if view.Type != ViewTypeList && view.Type != ViewTypeKanban {
+		return "", errors.New("Type must be 'list' or 'kanban")
+	}
+
+	if len(view.Query.Excludes) == 0 && len(view.Query.Includes) == 0 && view.Query.ChannelID == "" {
+		return "", errors.New("Query must have Includes, Excludes or ChannelID set")
 	}
 
 	id, err := vs.store.Create(view)
@@ -40,6 +46,23 @@ func (vs *viewService) GetObjectsForView(id string, page int, perPage int) (Obje
 	view, err := vs.store.Get(id)
 	if err != nil {
 		return Objects{}, errors.Wrap(err, "could not get view")
+	}
+
+	if view.Query.ChannelID != "" && len(view.Query.Excludes) == 0 && len(view.Query.Includes) == 0 {
+		postList, err := vs.api.Post.GetPostsForChannel(view.Query.ChannelID, page, perPage)
+		if err != nil {
+			return Objects{}, errors.Wrap(err, "could not query objects")
+		}
+
+		//TODO: handle case where there's many system message in a row, potentially resulting in 0 posts being returned
+		posts := postList.ToSlice()
+		filteredPosts := []*model.Post{}
+		for _, post := range posts {
+			if !post.IsSystemMessage() {
+				filteredPosts = append(filteredPosts, post)
+			}
+		}
+		return Objects{Posts: filteredPosts}, nil
 	}
 
 	ids, err := vs.store.QueryObjects(view.Query, page, perPage)

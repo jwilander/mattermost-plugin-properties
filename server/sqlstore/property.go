@@ -33,6 +33,8 @@ func NewPropertyStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.Propert
 			"p.ID",
 			"p.ObjectID",
 			"p.ObjectType",
+			"p.ChannelID",
+			"p.TeamID",
 			"p.PropertyFieldID",
 			"p.Value",
 			"pf.Name as PropertyFieldName",
@@ -73,6 +75,8 @@ func (p *propertyStore) Create(property app.Property) (id string, err error) {
 			"ID":              rawProperty.ID,
 			"ObjectID":        rawProperty.ObjectID,
 			"ObjectType":      rawProperty.ObjectType,
+			"ChannelID":       rawProperty.ChannelID,
+			"TeamID":          rawProperty.TeamID,
 			"PropertyFieldID": rawProperty.PropertyFieldID,
 			"Value":           rawProperty.ValueJSON,
 		}))

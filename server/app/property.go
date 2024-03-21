@@ -5,6 +5,8 @@ type Property struct {
 	ObjectID            string        `json:"object_id"`
 	ObjectType          string        `json:"object_type"`
 	PropertyFieldID     string        `json:"property_field_id"`
+	ChannelID           string        `json:"channel_id"`
+	TeamID              string        `json:"team_id"`
 	PropertyFieldName   string        `json:"property_field_name"`
 	PropertyFieldType   string        `json:"property_field_type"`
 	PropertyFieldValues []interface{} `json:"property_field_values"`
