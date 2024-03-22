@@ -8,9 +8,11 @@ import styled from 'styled-components';
 import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
-import Post from 'src/components/post';
-import {ViewQuery} from 'src/types/property';
+import {ViewQuery, ViewTypeEnum} from 'src/types/property';
 import {getPropertyFields} from 'src/selectors';
+
+import List from 'src/components/list';
+import Kanban from 'src/components/kanban';
 
 const ViewContainer = styled.div`
     padding: 50px;
@@ -19,18 +21,19 @@ const ViewContainer = styled.div`
 type ViewProps = {
     id: string;
     title: string;
+    type: ViewTypeEnum;
     query: ViewQuery;
 }
 
-const View = ({id, title, query}: ViewProps) => {
+const View = ({id, title, type, query}: ViewProps) => {
     const [posts, setPosts] = useState([] as PostType[]);
     const fields = useSelector(getPropertyFields);
 
     useEffect(() => {
-        getPostIdsForView(id);
+        getPostsForView(id);
     }, [id]);
 
-    async function getPostIdsForView(viewID: string) {
+    async function getPostsForView(viewID: string) {
         if (!viewID) {
             return;
         }
@@ -44,7 +47,7 @@ const View = ({id, title, query}: ViewProps) => {
             lines.push(`Channel ID = '${query.channel_id}'`);
         }
         if (query.team_id) {
-            lines.push(`Team ID = '${query.channel_id}'`);
+            lines.push(`Team ID = '${query.team_id}'`);
         }
         if (query.includes) {
             lines = lines.concat(Object.keys(query.includes).map((fid) => `${fields[fid] ? fields[fid].name : 'unknown'} includes ${query.includes[fid].length ? query.includes[fid] : 'any'}`));
@@ -59,17 +62,19 @@ const View = ({id, title, query}: ViewProps) => {
         <ViewContainer>
             <Title>{title}</Title>
             <Query>{queryToString()}</Query>
-            <ObjectList>
-                {posts.map((p) => (
-                    <Post
-                        key={`post-${id}-${p.id}`}
-                        id={p.id}
-                        create_at={p.create_at}
-                        userID={p.user_id}
-                        message={p.message}
+            <ObjectContainer>
+                {type === 'list' ? (
+                    <List
+                        id={id}
+                        posts={posts}
                     />
-                ))}
-            </ObjectList>
+                ) : (
+                    <Kanban
+                        id={id}
+                        posts={posts}
+                    />
+                )}
+            </ObjectContainer>
         </ViewContainer>
     );
 };
@@ -86,7 +91,7 @@ const Query = styled.span`
     padding-bottom: 20px;
 `;
 
-const ObjectList = styled.div`
+const ObjectContainer = styled.div`
     margin-top: 20px;
 `;
 

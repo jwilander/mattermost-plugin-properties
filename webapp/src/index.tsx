@@ -53,12 +53,12 @@ export default class Plugin {
         });
 
         const views = await fetchViewsForUser(getCurrentUserId(store.getState()));
-        console.log(views);
 
         views.forEach((view) => registry.registerLeftHandSidebarItem(view.title, view.id, () => (
             <View
                 id={view.id}
                 title={view.title}
+                type={view.type}
                 query={view.query}
             />
         )));

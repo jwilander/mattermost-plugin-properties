@@ -32,10 +32,12 @@ export interface ViewQuery {
     team_id: string;
 }
 
+export type ViewTypeEnum = 'list' | 'kanban';
+
 export interface View {
     id: string;
     title: string;
-    type: string;
+    type: ViewTypeEnum;
     query: ViewQuery;
     create_at: number;
 }
