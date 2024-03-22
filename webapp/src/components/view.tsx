@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
-import {ViewQuery, ViewTypeEnum} from 'src/types/property';
+import {ViewFormat, ViewQuery, ViewTypeEnum} from 'src/types/property';
 import {getPropertyFields} from 'src/selectors';
 
 import List from 'src/components/list';
@@ -23,9 +23,10 @@ type ViewProps = {
     title: string;
     type: ViewTypeEnum;
     query: ViewQuery;
+    format: ViewFormat;
 }
 
-const View = ({id, title, type, query}: ViewProps) => {
+const View = ({id, title, type, query, format}: ViewProps) => {
     const [posts, setPosts] = useState([] as PostType[]);
     const fields = useSelector(getPropertyFields);
 
@@ -72,6 +73,7 @@ const View = ({id, title, type, query}: ViewProps) => {
                     <Kanban
                         id={id}
                         posts={posts}
+                        format={format}
                     />
                 )}
             </ObjectContainer>

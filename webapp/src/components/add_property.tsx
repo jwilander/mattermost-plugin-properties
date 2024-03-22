@@ -88,12 +88,6 @@ export default function AddProperty(props: Props) {
         setOptions(opts);
     }
 
-    // Fill in the propertyFields on mount.
-    useEffect(() => {
-        //TODO: don't fetch on every mount
-        fetchPropertyFields();
-    }, []);
-
     useUpdateEffect(() => {
         props.onOpenChange?.(isOpen);
     }, [isOpen]);

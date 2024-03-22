@@ -147,10 +147,10 @@ const ManageFieldsModal = (modalProps: ManageFieldsModalProps) => {
                                     />
                                 </td>
                                 <Label>{f.type}</Label>
-                                {f.values ? (
+                                {f.values || f.type === 'select' ? (
                                     <td>
                                         <Editable
-                                            value={f.values.join(',')}
+                                            value={(f.values || []).join(',')}
                                             onChange={(newValue) => onFieldChange(f.id, 'values', newValue.trim().split(','))}
                                         />
                                     </td>) : <Label>{'-'}</Label>}

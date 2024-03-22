@@ -32,6 +32,12 @@ export interface ViewQuery {
     team_id: string;
 }
 
+export interface ViewFormat {
+    order: string[];
+    group_by_field_id: string;
+    hidden_value_ids: string[];
+}
+
 export type ViewTypeEnum = 'list' | 'kanban';
 
 export interface View {
@@ -39,6 +45,7 @@ export interface View {
     title: string;
     type: ViewTypeEnum;
     query: ViewQuery;
+    format: ViewFormat;
     create_at: number;
 }
 

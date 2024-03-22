@@ -8,8 +8,9 @@ type View struct {
 	ID       string `json:"id"`
 	Title    string `json:"title"`
 	Type     string `json:"type"`
-	Query    Query  `json:"query" db:"-"`
 	CreateAt int64  `json:"create_at"`
+	Query    Query  `json:"query" db:"-"`
+	Format   Format `json:"format" db:"-"`
 }
 
 const (
@@ -27,6 +28,12 @@ type Query struct {
 	Excludes  map[string][]string `json:"excludes"`
 	ChannelID string              `json:"channel_id"`
 	TeamID    string              `json:"team_id"`
+}
+
+type Format struct {
+	Order          []string `json:"order"`
+	GroupByFieldID string   `json:"group_by_field_id"`
+	HiddenValueIDs []string `json:"hidden_value_ids"`
 }
 
 type Objects struct {

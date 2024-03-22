@@ -14,7 +14,8 @@ import (
 
 type sqlView struct {
 	app.View
-	QueryJSON json.RawMessage `db:"query"`
+	QueryJSON  json.RawMessage `db:"query"`
+	FormatJSON json.RawMessage `db:"format"`
 }
 
 type viewStore struct {
@@ -35,6 +36,7 @@ func NewViewStore(pluginAPI PluginAPIClient, sqlStore *SQLStore) app.ViewStore {
 			"v.Type",
 			"v.CreateAt",
 			"v.Query",
+			"v.Format",
 		).
 		From("PROP_View v")
 
@@ -72,6 +74,7 @@ func (p *viewStore) Create(view app.View) (id string, err error) {
 			"Type":     rawView.Type,
 			"CreateAt": rawView.CreateAt,
 			"Query":    rawView.QueryJSON,
+			"Format":   rawView.FormatJSON,
 		}))
 	if err != nil {
 		return "", errors.Wrap(err, "failed to store new view")
@@ -273,9 +276,19 @@ func toSQLView(view app.View) (*sqlView, error) {
 		return nil, errors.Errorf("query json for view id '%s' is too long (max %d)", view.ID, maxJSONLength)
 	}
 
+	formatJSON, err := json.Marshal(view.Format)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to marshal format json for view id: '%s'", view.ID)
+	}
+
+	if len(formatJSON) > maxJSONLength {
+		return nil, errors.Errorf("format json for view id '%s' is too long (max %d)", view.ID, maxJSONLength)
+	}
+
 	return &sqlView{
-		View:      view,
-		QueryJSON: queryJSON,
+		View:       view,
+		QueryJSON:  queryJSON,
+		FormatJSON: formatJSON,
 	}, nil
 }
 
@@ -284,6 +297,12 @@ func toView(rawView sqlView) (app.View, error) {
 	if len(rawView.QueryJSON) > 0 {
 		if err := json.Unmarshal(rawView.QueryJSON, &p.Query); err != nil {
 			return app.View{}, errors.Wrapf(err, "failed to unmarshal query json for view id: '%s'", rawView.ID)
+		}
+	}
+
+	if len(rawView.FormatJSON) > 0 {
+		if err := json.Unmarshal(rawView.FormatJSON, &p.Format); err != nil {
+			return app.View{}, errors.Wrapf(err, "failed to unmarshal format json for view id: '%s'", rawView.ID)
 		}
 	}
 

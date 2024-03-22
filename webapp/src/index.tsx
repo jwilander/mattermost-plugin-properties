@@ -8,7 +8,7 @@ import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
 import {manifest} from 'src/manifest';
 import {PluginRegistry} from 'src/types/mattermost-webapp';
 import reducer from 'src/reducer';
-import {displayManageFieldsModal, receivedProperty} from 'src/actions';
+import {displayManageFieldsModal, receivedProperty, receivedPropertyFields} from 'src/actions';
 import PostAttachment from 'src/components/post_attachment';
 import View from 'src/components/view';
 import {createProperty, fetchPropertyFieldsForTerm, fetchViewsForUser} from 'src/client';
@@ -23,7 +23,9 @@ export default class Plugin {
         registry.registerMainMenuAction('Manage Fields', () => store.dispatch(displayManageFieldsModal({})));
         const {rootRegisterMenuItem} = registry.registerPostDropdownSubMenuAction('Add Property');
 
+        //TODO: consider better way to populate fields
         const fields = await fetchPropertyFieldsForTerm('');
+        store.dispatch(receivedPropertyFields(fields));
 
         const makeCreateProperty = (field: PropertyField) => {
             return async (postID: string) => {
@@ -60,6 +62,7 @@ export default class Plugin {
                 title={view.title}
                 type={view.type}
                 query={view.query}
+                format={view.format}
             />
         )));
     }
