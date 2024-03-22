@@ -2,10 +2,11 @@
 // See LICENSE.txt for license information.
 
 import {GlobalState} from '@mattermost/types/store';
+import {createSelector} from 'reselect';
 
-import {PropertiesPluginState} from 'src/reducer';
+import {PropertiesPluginState, TStateObjectsForView, TStateProperties} from 'src/reducer';
 import {manifest} from 'src/manifest';
-import {PropertyField} from 'src/types/property';
+import {ObjectWithProperties, PropertyField} from 'src/types/property';
 
 // Assert known typing
 const pluginState = (state: GlobalState): PropertiesPluginState => state['plugins-' + manifest.id as keyof GlobalState] as unknown as PropertiesPluginState || {} as PropertiesPluginState;
@@ -25,3 +26,12 @@ export const getPropertyField = (id: string) => {
         return getPropertyFields(state)[id] || {} as PropertyField;
     };
 };
+
+export const getObjectsWithPropertiesForView = (viewID: string) => createSelector(
+    getProperties,
+    (state) => pluginState(state).objectsForView,
+    (allProperties: TStateProperties, objectsForViews: TStateObjectsForView) => {
+        const objects = objectsForViews[viewID] || [];
+        return objects.map((o) => ({...o, properties: allProperties[o.id]} as ObjectWithProperties));
+    },
+);

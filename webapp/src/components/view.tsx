@@ -10,12 +10,12 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
-import {ObjectWithProperties, ViewFormat, ViewQuery, ViewTypeEnum} from 'src/types/property';
-import {getPropertyFields} from 'src/selectors';
+import {ObjectWithoutProperties, ViewFormat, ViewQuery, ViewTypeEnum} from 'src/types/property';
+import {getObjectsWithPropertiesForView, getPropertyFields} from 'src/selectors';
 
 import List from 'src/components/list';
 import Kanban from 'src/components/kanban';
-import {receivedPropertiesForObject} from '@/actions';
+import {receivedObjectsForView, receivedPropertiesForObject} from '@/actions';
 import {ReceivedPropertiesForObject} from '@/types/actions';
 
 const ViewContainer = styled.div`
@@ -33,8 +33,8 @@ type ViewProps = {
 const View = ({id, title, type, query, format}: ViewProps) => {
     const dispatch = useDispatch();
     const [posts, setPosts] = useState([] as PostType[]);
-    const [objects, setObjects] = useState([] as ObjectWithProperties[]);
     const fields = useSelector(getPropertyFields);
+    const objects = useSelector(getObjectsWithPropertiesForView(id));
 
     useEffect(() => {
         getPostsForView(id);
@@ -46,7 +46,7 @@ const View = ({id, title, type, query, format}: ViewProps) => {
         }
         const results = await fetchObjectsForView(viewID);
         setPosts(results.posts);
-        setObjects(results.posts.map((p) => ({id: p.id, type: 'post', properties: results.properties[p.id], content: p.message} as ObjectWithProperties)));
+        const objectsWithoutProperties = results.posts.map((p) => ({id: p.id, type: 'post', content: p.message} as ObjectWithoutProperties));
 
         const actions = [] as ReceivedPropertiesForObject[];
         Object.keys(results.properties).forEach((objectID) => {
@@ -55,6 +55,7 @@ const View = ({id, title, type, query, format}: ViewProps) => {
 
         batch(() => {
             actions.forEach((a) => dispatch(a));
+            dispatch(receivedObjectsForView(id, objectsWithoutProperties));
         });
     }
 

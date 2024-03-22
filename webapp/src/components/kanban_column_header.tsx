@@ -39,7 +39,7 @@ const Label = styled.span`
 
 const KanbanColumnHeader = ({value}: KanbanProps) => {
     return (
-        <ColumnHeader>
+        <ColumnHeader className='KanbanColumnHeader'>
             <Label>
                 {value}
             </Label>

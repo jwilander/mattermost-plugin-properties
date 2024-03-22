@@ -3,7 +3,7 @@
 
 import {AnyAction, Dispatch} from 'redux';
 
-import {Property, PropertyField} from 'src/types/property';
+import {ObjectWithoutProperties, Property, PropertyField} from 'src/types/property';
 
 import {
     RECEIVED_PROPERTIES_FOR_OBJECT,
@@ -13,6 +13,7 @@ import {
     DELETED_PROPERTY,
     DELETED_PROPERTY_FIELD,
     RECEIVED_PROPERTY_VALUE,
+    RECEIVED_OBJECTS_FOR_VIEW,
     ReceivedPropertiesForObject,
     ReceivedProperty,
     DeletedProperty,
@@ -20,6 +21,7 @@ import {
     ReceivedPropertyValue,
     ReceivedPropertyField,
     ReceivedPropertyFields,
+    ReceivedObjectsForView,
 } from 'src/types/actions';
 
 import {ManageFieldsModalProps, makeManageFieldsModal} from 'src/components/manage_fields_modal';
@@ -62,6 +64,12 @@ export const receivedPropertyValue = (id: string, objectID: string, value: strin
     id,
     objectID,
     value,
+});
+
+export const receivedObjectsForView = (viewID: string, objects: ObjectWithoutProperties[]): ReceivedObjectsForView => ({
+    type: RECEIVED_OBJECTS_FOR_VIEW,
+    viewID,
+    objects,
 });
 
 export function displayManageFieldsModal(props: ManageFieldsModalProps) {

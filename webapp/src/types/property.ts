@@ -15,11 +15,14 @@ export interface Property {
     value: string[];
 }
 
-export interface ObjectWithProperties {
+export interface ObjectWithoutProperties {
     id: string;
     type: string;
-    properties: Property[];
     content: string;
+}
+
+export interface ObjectWithProperties extends ObjectWithoutProperties {
+    properties: Property[];
 }
 
 export interface PropertyField {

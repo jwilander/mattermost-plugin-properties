@@ -1,8 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {Property, PropertyField} from 'src/types/property';
 import {manifest} from 'src/manifest';
+import {ObjectWithoutProperties, Property, PropertyField} from 'src/types/property';
 
 export const RECEIVED_PROPERTIES_FOR_OBJECT = manifest.id + '_received_properties';
 export const RECEIVED_PROPERTY = manifest.id + '_received_property';
@@ -11,6 +11,7 @@ export const RECEIVED_PROPERTY_FIELDS = manifest.id + '_received_property_fields
 export const DELETED_PROPERTY = manifest.id + '_deleted_property';
 export const DELETED_PROPERTY_FIELD = manifest.id + '_deleted_property_field';
 export const RECEIVED_PROPERTY_VALUE = manifest.id + '_received_property_value';
+export const RECEIVED_OBJECTS_FOR_VIEW = manifest.id + '_received_objects_for_view';
 
 export interface ReceivedPropertiesForObject {
     type: typeof RECEIVED_PROPERTIES_FOR_OBJECT;
@@ -49,4 +50,10 @@ export interface ReceivedPropertyValue {
     id: string;
     objectID: string;
     value: string[];
+}
+
+export interface ReceivedObjectsForView {
+    type: typeof RECEIVED_OBJECTS_FOR_VIEW;
+    viewID: string;
+    objects: ObjectWithoutProperties[];
 }

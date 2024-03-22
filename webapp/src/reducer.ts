@@ -3,7 +3,7 @@
 
 import {combineReducers} from 'redux';
 
-import {Property, PropertyField} from 'src/types/property';
+import {ObjectWithoutProperties, Property, PropertyField, View} from 'src/types/property';
 
 import {
     DELETED_PROPERTY,
@@ -20,6 +20,8 @@ import {
     ReceivedPropertyFields,
     ReceivedPropertyValue,
     DeletedPropertyField,
+    ReceivedObjectsForView,
+    RECEIVED_OBJECTS_FOR_VIEW,
 
 } from 'src/types/actions';
 
@@ -175,9 +177,25 @@ function propertyFields(state: TStatePropertyFields = {}, action: ReceivedProper
     }
 }
 
+type TStateObjectsForView = Record<View['id'], ObjectWithoutProperties[]>;
+
+function objectsForView(state: TStateObjectsForView = {}, action: ReceivedObjectsForView) {
+    switch (action.type) {
+    case RECEIVED_OBJECTS_FOR_VIEW: {
+        const a = action as ReceivedObjectsForView;
+        const nextState = {...state};
+        nextState[a.viewID] = a.objects;
+        return nextState;
+    }
+    default:
+        return state;
+    }
+}
+
 const reducer = combineReducers({
     properties,
     propertyFields,
+    objectsForView,
 });
 
 export default reducer;
