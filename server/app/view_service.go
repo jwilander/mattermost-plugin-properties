@@ -8,16 +8,18 @@ import (
 )
 
 type viewService struct {
-	store       ViewStore
-	memberStore ViewMemberStore
-	api         *pluginapi.Client
+	store           ViewStore
+	memberStore     ViewMemberStore
+	propertyService PropertyService
+	api             *pluginapi.Client
 }
 
-func NewViewService(store ViewStore, memberStore ViewMemberStore, api *pluginapi.Client) ViewService {
+func NewViewService(store ViewStore, memberStore ViewMemberStore, propertyService PropertyService, api *pluginapi.Client) ViewService {
 	return &viewService{
-		store:       store,
-		memberStore: memberStore,
-		api:         api,
+		store:           store,
+		memberStore:     memberStore,
+		propertyService: propertyService,
+		api:             api,
 	}
 }
 
@@ -48,35 +50,47 @@ func (vs *viewService) GetObjectsForView(id string, page int, perPage int) (Obje
 		return Objects{}, errors.Wrap(err, "could not get view")
 	}
 
+	var posts []*model.Post
+
 	if view.Query.ChannelID != "" && len(view.Query.Excludes) == 0 && len(view.Query.Includes) == 0 {
 		postList, err := vs.api.Post.GetPostsForChannel(view.Query.ChannelID, page, perPage)
+		if err != nil {
+			return Objects{}, errors.Wrapf(err, "could not query objects for channel_id=%s", view.Query.ChannelID)
+		}
+
+		//TODO: handle case where there's many system message in a row, potentially resulting in 0 posts being returned
+		allPosts := postList.ToSlice()
+		posts = []*model.Post{}
+		for _, post := range allPosts {
+			if !post.IsSystemMessage() {
+				posts = append(posts, post)
+			}
+		}
+	} else {
+		ids, err := vs.store.QueryObjects(view.Query, page, perPage)
 		if err != nil {
 			return Objects{}, errors.Wrap(err, "could not query objects")
 		}
 
-		//TODO: handle case where there's many system message in a row, potentially resulting in 0 posts being returned
-		posts := postList.ToSlice()
-		filteredPosts := []*model.Post{}
-		for _, post := range posts {
-			if !post.IsSystemMessage() {
-				filteredPosts = append(filteredPosts, post)
-			}
+		posts, err = vs.api.Post.GetPostsById(ids)
+		if err != nil {
+			//TODO: handle not found better
+			return Objects{}, errors.Wrap(err, "could not get posts")
 		}
-		return Objects{Posts: filteredPosts}, nil
 	}
 
-	ids, err := vs.store.QueryObjects(view.Query, page, perPage)
-	if err != nil {
-		return Objects{}, errors.Wrap(err, "could not query objects")
+	objects := Objects{Posts: posts, Properties: map[string]PropertiesList{}}
+
+	//TODO: batch these
+	for _, post := range posts {
+		properties, err := vs.propertyService.GetForObject(post.Id)
+		if err != nil && !errors.Is(err, ErrNotFound) {
+			return Objects{}, errors.Wrap(err, "could not get properties for object")
+		}
+		objects.Properties[post.Id] = properties
 	}
 
-	posts, err := vs.api.Post.GetPostsById(ids)
-	if err != nil {
-		//TODO: handle not found better
-		return Objects{}, errors.Wrap(err, "could not get posts")
-	}
-
-	return Objects{Posts: posts}, nil
+	return objects, nil
 }
 
 func (vs *viewService) AddUserToView(userID string, viewID string) error {

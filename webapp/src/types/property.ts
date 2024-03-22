@@ -58,4 +58,5 @@ export interface View {
 
 export interface ViewQueryResults {
     posts: Post[];
+    properties: Record<string, Property[]>;
 }

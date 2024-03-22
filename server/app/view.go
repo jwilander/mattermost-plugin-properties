@@ -22,7 +22,6 @@ type ViewMember struct {
 	ViewID string `json:"view_id"`
 	UserID string `json:"user_id"`
 }
-
 type Query struct {
 	Includes  map[string][]string `json:"includes"`
 	Excludes  map[string][]string `json:"excludes"`
@@ -36,8 +35,11 @@ type Format struct {
 	HiddenValueIDs []string `json:"hidden_value_ids"`
 }
 
+type PropertiesList []Property
+
 type Objects struct {
-	Posts []*model.Post `json:"posts"`
+	Posts      []*model.Post             `json:"posts"`
+	Properties map[string]PropertiesList `json:"properties"`
 }
 
 type ViewStore interface {

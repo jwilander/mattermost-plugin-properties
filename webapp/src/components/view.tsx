@@ -1,8 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useCallback, useEffect, useState, useMemo} from 'react';
-import {useSelector} from 'react-redux';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useSelector, useDispatch, batch} from 'react-redux';
 import styled from 'styled-components';
 import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
@@ -15,6 +15,8 @@ import {getPropertyFields} from 'src/selectors';
 
 import List from 'src/components/list';
 import Kanban from 'src/components/kanban';
+import {receivedPropertiesForObject} from '@/actions';
+import {ReceivedPropertiesForObject} from '@/types/actions';
 
 const ViewContainer = styled.div`
     padding: 50px;
@@ -29,6 +31,7 @@ type ViewProps = {
 }
 
 const View = ({id, title, type, query, format}: ViewProps) => {
+    const dispatch = useDispatch();
     const [posts, setPosts] = useState([] as PostType[]);
     const [objects, setObjects] = useState([] as ObjectWithProperties[]);
     const fields = useSelector(getPropertyFields);
@@ -43,7 +46,16 @@ const View = ({id, title, type, query, format}: ViewProps) => {
         }
         const results = await fetchObjectsForView(viewID);
         setPosts(results.posts);
-        setObjects(results.posts.map((p) => ({id: p.id, type: 'post', properties: results.properties, content: p.message} as ObjectWithProperties)));
+        setObjects(results.posts.map((p) => ({id: p.id, type: 'post', properties: results.properties[p.id], content: p.message} as ObjectWithProperties)));
+
+        const actions = [] as ReceivedPropertiesForObject[];
+        Object.keys(results.properties).forEach((objectID) => {
+            actions.push(receivedPropertiesForObject(objectID, results.properties[objectID]));
+        });
+
+        batch(() => {
+            actions.forEach((a) => dispatch(a));
+        });
     }
 
     const queryToString = useCallback(() => {
@@ -77,7 +89,7 @@ const View = ({id, title, type, query, format}: ViewProps) => {
                     ) : (
                         <Kanban
                             id={id}
-                            posts={posts}
+                            objects={objects}
                             format={format}
                         />
                     )}
