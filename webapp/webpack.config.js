@@ -43,6 +43,10 @@ const config = {
             path.resolve(__dirname),
         ],
         extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
+        fallback: {
+            'react/jsx-runtime': 'react/jsx-runtime.js',
+            'react/jsx-dev-runtime': 'react/jsx-dev-runtime.js',
+        },
     },
     module: {
         rules: [

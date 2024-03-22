@@ -1,14 +1,16 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import styled from 'styled-components';
+import {DndProvider} from 'react-dnd';
+import {HTML5Backend} from 'react-dnd-html5-backend';
 
 import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
-import {ViewFormat, ViewQuery, ViewTypeEnum} from 'src/types/property';
+import {ObjectWithProperties, ViewFormat, ViewQuery, ViewTypeEnum} from 'src/types/property';
 import {getPropertyFields} from 'src/selectors';
 
 import List from 'src/components/list';
@@ -28,6 +30,7 @@ type ViewProps = {
 
 const View = ({id, title, type, query, format}: ViewProps) => {
     const [posts, setPosts] = useState([] as PostType[]);
+    const [objects, setObjects] = useState([] as ObjectWithProperties[]);
     const fields = useSelector(getPropertyFields);
 
     useEffect(() => {
@@ -40,6 +43,7 @@ const View = ({id, title, type, query, format}: ViewProps) => {
         }
         const results = await fetchObjectsForView(viewID);
         setPosts(results.posts);
+        setObjects(results.posts.map((p) => ({id: p.id, type: 'post', properties: results.properties, content: p.message} as ObjectWithProperties)));
     }
 
     const queryToString = useCallback(() => {
@@ -60,24 +64,26 @@ const View = ({id, title, type, query, format}: ViewProps) => {
     }, [query, fields]);
 
     return (
-        <ViewContainer>
-            <Title>{title}</Title>
-            <Query>{queryToString()}</Query>
-            <ObjectContainer>
-                {type === 'list' ? (
-                    <List
-                        id={id}
-                        posts={posts}
-                    />
-                ) : (
-                    <Kanban
-                        id={id}
-                        posts={posts}
-                        format={format}
-                    />
-                )}
-            </ObjectContainer>
-        </ViewContainer>
+        <DndProvider backend={HTML5Backend}>
+            <ViewContainer>
+                <Title>{title}</Title>
+                <Query>{queryToString()}</Query>
+                <ObjectContainer>
+                    {type === 'list' ? (
+                        <List
+                            id={id}
+                            posts={posts}
+                        />
+                    ) : (
+                        <Kanban
+                            id={id}
+                            posts={posts}
+                            format={format}
+                        />
+                    )}
+                </ObjectContainer>
+            </ViewContainer>
+        </DndProvider>
     );
 };
 

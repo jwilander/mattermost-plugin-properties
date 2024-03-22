@@ -15,6 +15,13 @@ export interface Property {
     value: string[];
 }
 
+export interface ObjectWithProperties {
+    id: string;
+    type: string;
+    properties: Property[];
+    content: string;
+}
+
 export interface PropertyField {
     id: string;
     team_id: string;
