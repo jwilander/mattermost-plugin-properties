@@ -27,6 +27,7 @@ const vStrength = createVerticalStrength(250);
 const Board = styled(ScrollingComponent)`
     overflow: auto;
     flex: 1;
+    min-height: 90%;
 `;
 
 const BoardHeader = styled.div`

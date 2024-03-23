@@ -23,6 +23,7 @@ import GroupBy from './group_by';
 
 const ViewContainer = styled.div`
     padding: 50px;
+    height: 100%;
 `;
 
 type ViewProps = {
@@ -143,6 +144,7 @@ const Query = styled.span`
 
 const ObjectContainer = styled.div`
     margin-top: 20px;
+    height: 100%;
 `;
 
 export default View;
