@@ -79,8 +79,14 @@ const View = ({id, title, type, query, format}: ViewProps) => {
     return (
         <DndProvider backend={HTML5Backend}>
             <ViewContainer>
-                <Title>{title}</Title>
-                <Query>{queryToString()}</Query>
+                <Header>
+                    <HeaderTitle>
+                        <Title>
+                            {title}
+                        </Title>
+                        <Query>{queryToString()}</Query>
+                    </HeaderTitle>
+                </Header>
                 <ObjectContainer>
                     {type === 'list' ? (
                         <List
@@ -99,6 +105,14 @@ const View = ({id, title, type, query, format}: ViewProps) => {
         </DndProvider>
     );
 };
+
+const Header = styled.div`
+    display: flex;
+    flex-direction: row;
+`;
+
+const HeaderTitle = styled.div`
+`;
 
 const Title = styled.div`
     font-size: 24px;

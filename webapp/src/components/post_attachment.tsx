@@ -21,12 +21,12 @@ const PropertyContainer = styled.div<{showAdd?: boolean}>`
     flex-direction: row;
     width: 100%;
 
-    .AddProperty, .ManageFields {
+    .FieldSelect, .ManageFields {
         display: none;
     }
 
     ${(props) => props.showAdd && css`
-        .AddProperty, .ManageFields {
+        .FieldSelect, .ManageFields {
             display: flex;
         }
     `}
