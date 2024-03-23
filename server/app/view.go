@@ -47,6 +47,7 @@ type ViewStore interface {
 	QueryObjects(query Query, page int, perPage int) ([]string, error)
 	Get(id string) (View, error)
 	GetForUser(userID string) ([]View, error)
+	Update(id string, title *string, query *Query, format *Format) error
 }
 
 type ViewMemberStore interface {
@@ -58,4 +59,5 @@ type ViewService interface {
 	GetObjectsForView(id string, page int, perPage int) (Objects, error)
 	AddUserToView(userID string, viewID string) error
 	GetForUser(userId string) ([]View, error)
+	Update(id string, title *string, query *Query, format *Format) error
 }

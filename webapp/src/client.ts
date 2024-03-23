@@ -5,7 +5,7 @@ import {Client4} from 'mattermost-redux/client';
 import {ClientError} from '@mattermost/client';
 
 import {manifest} from './manifest';
-import {Property, PropertyField, View, ViewQueryResults} from './types/property';
+import {Property, PropertyField, View, ViewFormat, ViewQuery, ViewQueryResults} from './types/property';
 
 let siteURL = '';
 let basePath = '';
@@ -81,6 +81,10 @@ export async function fetchViewsForUser(userID: string) {
     return data as View[];
 }
 
+export async function patchView(id: string, title: string | null, query: ViewQuery | null, format: ViewFormat | null) {
+    await doPatch(`${apiUrl}/view/${id}`, JSON.stringify({title, query, format}));
+}
+
 export const doGet = async <TData = any>(url: string) => {
     const {data} = await doFetchWithResponse<TData>(url, {method: 'get'});
 
@@ -105,6 +109,15 @@ export const doPost = async <TData = any>(url: string, body = {}) => {
 export const doPut = async <TData = any>(url: string, body = {}) => {
     const {data} = await doFetchWithResponse<TData>(url, {
         method: 'PUT',
+        body,
+    });
+
+    return data;
+};
+
+export const doPatch = async <TData = any>(url: string, body = {}) => {
+    const {data} = await doFetchWithResponse<TData>(url, {
+        method: 'PATCH',
         body,
     });
 

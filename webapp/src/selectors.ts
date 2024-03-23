@@ -6,7 +6,7 @@ import {createSelector} from 'reselect';
 
 import {PropertiesPluginState, TStateObjectsForView, TStateProperties} from 'src/reducer';
 import {manifest} from 'src/manifest';
-import {ObjectWithProperties, PropertyField} from 'src/types/property';
+import {ObjectWithProperties, PropertyField, View} from 'src/types/property';
 
 // Assert known typing
 const pluginState = (state: GlobalState): PropertiesPluginState => state['plugins-' + manifest.id as keyof GlobalState] as unknown as PropertiesPluginState || {} as PropertiesPluginState;
@@ -35,3 +35,11 @@ export const getObjectsWithPropertiesForView = (viewID: string) => createSelecto
         return objects.map((o) => ({...o, properties: allProperties[o.id]} as ObjectWithProperties));
     },
 );
+
+export const getViews = (state: GlobalState) => pluginState(state).views;
+
+export const getView = (id: string) => {
+    return (state: GlobalState) => {
+        return getViews(state)[id] || {} as View;
+    };
+};

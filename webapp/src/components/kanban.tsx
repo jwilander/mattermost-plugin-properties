@@ -70,10 +70,13 @@ const getObjectsByGroupByField = (fieldID: string, vals: string[], objs: ObjectW
     return result;
 };
 
+const emptyValues = [] as string[];
+
 const Kanban = ({id, objects, format}: KanbanProps) => {
     const dispatch = useDispatch();
     const groupByField = useSelector(getPropertyField(format.group_by_field_id));
-    const values = useMemo(() => ([...(groupByField.values as string[]), '']), [groupByField.values]);
+    const groupByFieldValues = groupByField.values || emptyValues;
+    const values = useMemo(() => ([...groupByFieldValues, '']), [groupByFieldValues]);
     const objectsByValue = useMemo(() => getObjectsByGroupByField(format.group_by_field_id, values, objects), [format.group_by_field_id, values, objects]);
 
     const onDropToColumn = (value: string, object: ObjectWithProperties) => {

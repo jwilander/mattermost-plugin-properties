@@ -162,6 +162,63 @@ func (p *viewStore) GetForUser(userID string) ([]app.View, error) {
 	return views, nil
 }
 
+func (p *viewStore) Update(id string, title *string, query *app.Query, format *app.Format) error {
+	if id == "" {
+		return errors.New("ID must be set")
+	}
+
+	if title == nil && query == nil && format == nil {
+		return errors.New("At least one of title, query or format must be set")
+	}
+
+	tx, err := p.store.db.Beginx()
+	if err != nil {
+		return errors.Wrap(err, "could not begin transaction")
+	}
+	defer p.store.finalizeTransaction(tx)
+
+	tempView := app.View{Format: app.Format{}, Query: app.Query{}}
+
+	if query != nil {
+		tempView.Query = *query
+	}
+
+	if format != nil {
+		tempView.Format = *format
+	}
+
+	sqlView, err := toSQLView(tempView)
+	if err != nil {
+		return err
+	}
+
+	toUpdate := map[string]interface{}{}
+	if title != nil {
+		toUpdate["Title"] = *title
+	}
+	if query != nil {
+		toUpdate["Query"] = sqlView.QueryJSON
+	}
+	if format != nil {
+		toUpdate["Format"] = sqlView.FormatJSON
+	}
+
+	_, err = p.store.execBuilder(tx, sq.
+		Update("PROP_View").
+		SetMap(toUpdate).
+		Where(sq.Eq{"ID": id}))
+
+	if err != nil {
+		return errors.Wrapf(err, "failed to update view with id '%s'", id)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return errors.Wrap(err, "could not commit transaction")
+	}
+
+	return nil
+}
+
 func (p *viewStore) QueryObjects(query app.Query, page int, perPage int) ([]string, error) {
 	if len(query.Includes) == 0 && len(query.Excludes) == 0 {
 		return []string{}, errors.New("Fields must have at least one value")

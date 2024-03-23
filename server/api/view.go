@@ -34,6 +34,7 @@ func NewViewHandler(router *mux.Router, viewService app.ViewService, api *plugin
 	viewRouter := router.PathPrefix("/view").Subrouter()
 
 	viewRouter.HandleFunc("", withContext(handler.createView)).Methods(http.MethodPost)
+	viewRouter.HandleFunc("/{id}", withContext(handler.patchView)).Methods(http.MethodPatch)
 	viewRouter.HandleFunc("/{id}/query", withContext(handler.queryView)).Methods(http.MethodGet)
 	viewRouter.HandleFunc("/user/{id}", withContext(handler.getForUser)).Methods(http.MethodGet)
 
@@ -126,4 +127,35 @@ func (h *ViewHandler) getForUser(c *Context, w http.ResponseWriter, r *http.Requ
 	}
 
 	ReturnJSON(w, views, http.StatusOK)
+}
+
+type ViewPatch struct {
+	Title  *string     `json:"title"`
+	Query  *app.Query  `json:"query"`
+	Format *app.Format `json:"format"`
+}
+
+func (h *ViewHandler) patchView(c *Context, w http.ResponseWriter, r *http.Request) {
+	//userID := r.Header.Get("Mattermost-User-ID")
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var patch ViewPatch
+	if err := json.NewDecoder(r.Body).Decode(&patch); err != nil {
+		h.HandleErrorWithCode(w, c.logger, http.StatusBadRequest, "unable to decode view patch", err)
+		return
+	}
+
+	/* TODO: implement permissions check
+	if !h.PermissionsCheck(w, c.logger, h.permissions.ViewCreate(userID, view)) {
+		return
+	}*/
+
+	err := h.viewService.Update(id, patch.Title, patch.Query, patch.Format)
+	if err != nil {
+		h.HandleError(w, c.logger, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

@@ -3,6 +3,7 @@
 
 import React, {useCallback, useEffect, useState} from 'react';
 import {useSelector, useDispatch, batch} from 'react-redux';
+import {IntlProvider} from 'react-intl';
 import styled from 'styled-components';
 import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
@@ -10,13 +11,15 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 import {Post as PostType} from '@mattermost/types/lib/posts';
 
 import {fetchObjectsForView} from 'src/client';
-import {ObjectWithoutProperties, ViewFormat, ViewQuery, ViewTypeEnum} from 'src/types/property';
-import {getObjectsWithPropertiesForView, getPropertyFields} from 'src/selectors';
+import {ObjectWithoutProperties} from 'src/types/property';
+import {getObjectsWithPropertiesForView, getPropertyFields, getView} from 'src/selectors';
 
 import List from 'src/components/list';
 import Kanban from 'src/components/kanban';
 import {receivedObjectsForView, receivedPropertiesForObject} from '@/actions';
 import {ReceivedPropertiesForObject} from '@/types/actions';
+
+import GroupBy from './group_by';
 
 const ViewContainer = styled.div`
     padding: 50px;
@@ -24,14 +27,12 @@ const ViewContainer = styled.div`
 
 type ViewProps = {
     id: string;
-    title: string;
-    type: ViewTypeEnum;
-    query: ViewQuery;
-    format: ViewFormat;
 }
 
-const View = ({id, title, type, query, format}: ViewProps) => {
+const View = ({id}: ViewProps) => {
     const dispatch = useDispatch();
+    const view = useSelector(getView(id));
+    const {title, type, format, query} = view;
     const [posts, setPosts] = useState([] as PostType[]);
     const fields = useSelector(getPropertyFields);
     const objects = useSelector(getObjectsWithPropertiesForView(id));
@@ -77,41 +78,55 @@ const View = ({id, title, type, query, format}: ViewProps) => {
     }, [query, fields]);
 
     return (
-        <DndProvider backend={HTML5Backend}>
-            <ViewContainer>
-                <Header>
-                    <HeaderTitle>
-                        <Title>
-                            {title}
-                        </Title>
-                        <Query>{queryToString()}</Query>
-                    </HeaderTitle>
-                </Header>
-                <ObjectContainer>
-                    {type === 'list' ? (
-                        <List
-                            id={id}
-                            posts={posts}
-                        />
-                    ) : (
-                        <Kanban
-                            id={id}
-                            objects={objects}
-                            format={format}
-                        />
-                    )}
-                </ObjectContainer>
-            </ViewContainer>
-        </DndProvider>
+        <IntlProvider locale='en'>
+            <DndProvider backend={HTML5Backend}>
+                <ViewContainer>
+                    <Header>
+                        <HeaderTitle>
+                            <Title>
+                                {title}
+                            </Title>
+                            <Query>{queryToString()}</Query>
+                        </HeaderTitle>
+                        <HeaderRight>
+                            {type === 'kanban' ? (
+                                <GroupBy
+                                    view={view}
+                                />
+                            ) : null
+                            }
+                        </HeaderRight>
+                    </Header>
+                    <ObjectContainer>
+                        {type === 'list' ? (
+                            <List
+                                id={id}
+                                posts={posts}
+                            />
+                        ) : (
+                            <Kanban
+                                id={id}
+                                objects={objects}
+                                format={format}
+                            />
+                        )}
+                    </ObjectContainer>
+                </ViewContainer>
+            </DndProvider>
+        </IntlProvider>
     );
 };
 
 const Header = styled.div`
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 `;
 
 const HeaderTitle = styled.div`
+`;
+
+const HeaderRight = styled.div`
 `;
 
 const Title = styled.div`

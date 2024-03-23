@@ -100,3 +100,7 @@ func (vs *viewService) AddUserToView(userID string, viewID string) error {
 func (vs *viewService) GetForUser(userID string) ([]View, error) {
 	return vs.store.GetForUser(userID)
 }
+
+func (vs *viewService) Update(id string, title *string, query *Query, format *Format) error {
+	return vs.store.Update(id, title, query, format)
+}

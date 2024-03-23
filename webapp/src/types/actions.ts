@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import {manifest} from 'src/manifest';
-import {ObjectWithoutProperties, Property, PropertyField} from 'src/types/property';
+import {ObjectWithoutProperties, Property, PropertyField, View} from 'src/types/property';
 
 export const RECEIVED_PROPERTIES_FOR_OBJECT = manifest.id + '_received_properties';
 export const RECEIVED_PROPERTY = manifest.id + '_received_property';
@@ -12,6 +12,7 @@ export const DELETED_PROPERTY = manifest.id + '_deleted_property';
 export const DELETED_PROPERTY_FIELD = manifest.id + '_deleted_property_field';
 export const RECEIVED_PROPERTY_VALUE = manifest.id + '_received_property_value';
 export const RECEIVED_OBJECTS_FOR_VIEW = manifest.id + '_received_objects_for_view';
+export const RECEIVED_VIEW = manifest.id + '_received_view';
 
 export interface ReceivedPropertiesForObject {
     type: typeof RECEIVED_PROPERTIES_FOR_OBJECT;
@@ -56,4 +57,9 @@ export interface ReceivedObjectsForView {
     type: typeof RECEIVED_OBJECTS_FOR_VIEW;
     viewID: string;
     objects: ObjectWithoutProperties[];
+}
+
+export interface ReceivedView {
+    type: typeof RECEIVED_VIEW;
+    view: View;
 }

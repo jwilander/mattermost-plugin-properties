@@ -22,10 +22,12 @@ import {
     DeletedPropertyField,
     ReceivedObjectsForView,
     RECEIVED_OBJECTS_FOR_VIEW,
+    ReceivedView,
+    RECEIVED_VIEW,
 
 } from 'src/types/actions';
 
-type TStateProperties = Record<Property['object_id'], Property[]>;
+export type TStateProperties = Record<Property['object_id'], Property[]>;
 
 function handleReceivedPropertyField(state: TStateProperties, field: PropertyField): TStateProperties {
     const nextState = {...state};
@@ -145,7 +147,7 @@ function properties(state: TStateProperties = {}, action: ReceivedPropertiesForO
     }
 }
 
-type TStatePropertyFields = Record<PropertyField['id'], PropertyField>;
+export type TStatePropertyFields = Record<PropertyField['id'], PropertyField>;
 
 function propertyFields(state: TStatePropertyFields = {}, action: ReceivedPropertyField | ReceivedPropertyFields | DeletedPropertyField) {
     switch (action.type) {
@@ -177,7 +179,7 @@ function propertyFields(state: TStatePropertyFields = {}, action: ReceivedProper
     }
 }
 
-type TStateObjectsForView = Record<View['id'], ObjectWithoutProperties[]>;
+export type TStateObjectsForView = Record<View['id'], ObjectWithoutProperties[]>;
 
 function objectsForView(state: TStateObjectsForView = {}, action: ReceivedObjectsForView) {
     switch (action.type) {
@@ -192,10 +194,26 @@ function objectsForView(state: TStateObjectsForView = {}, action: ReceivedObject
     }
 }
 
+export type TStateViews = Record<View['id'], View>;
+
+function views(state: TStateViews = {}, action: ReceivedView) {
+    switch (action.type) {
+    case RECEIVED_VIEW: {
+        const a = action as ReceivedView;
+        const nextState = {...state};
+        nextState[a.view.id] = a.view;
+        return nextState;
+    }
+    default:
+        return state;
+    }
+}
+
 const reducer = combineReducers({
     properties,
     propertyFields,
     objectsForView,
+    views,
 });
 
 export default reducer;

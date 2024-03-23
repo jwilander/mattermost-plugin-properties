@@ -22,7 +22,8 @@ export interface FieldOption {
 interface Props {
     testId?: string
     className?: string;
-    buttonText?: string;
+    buttonText?: JSX.Element | string;
+    filter?: (option: FieldOption) => boolean;
     onSelectedChange: (value: FieldOption) => void;
     onOpenChange?: (isOpen: boolean) => void;
 }
@@ -78,7 +79,10 @@ export default function FieldSelect(props: Props) {
 
         dispatch(receivedPropertyFields(fields));
 
-        const opts = fields.map((f) => ({value: f.id, label: f.name, field: f} as FieldOption));
+        let opts = fields.map((f) => ({value: f.id, label: f.name, field: f} as FieldOption));
+        if (props.filter) {
+            opts = opts.filter(props.filter);
+        }
         setOptions(opts);
     }
 

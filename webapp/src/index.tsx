@@ -1,4 +1,5 @@
 import React from 'react';
+import {batch} from 'react-redux';
 import {Store, Action} from 'redux';
 
 import {GlobalState} from '@mattermost/types/lib/store';
@@ -8,7 +9,7 @@ import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
 import {manifest} from 'src/manifest';
 import {PluginRegistry} from 'src/types/mattermost-webapp';
 import reducer from 'src/reducer';
-import {displayManageFieldsModal, receivedProperty, receivedPropertyFields} from 'src/actions';
+import {displayManageFieldsModal, receivedProperty, receivedPropertyFields, receivedView} from 'src/actions';
 import PostAttachment from 'src/components/post_attachment';
 import View from 'src/components/view';
 import {createProperty, fetchPropertyFieldsForTerm, fetchViewsForUser} from 'src/client';
@@ -56,13 +57,13 @@ export default class Plugin {
 
         const views = await fetchViewsForUser(getCurrentUserId(store.getState()));
 
+        batch(() => {
+            views.forEach((v) => store.dispatch(receivedView(v)));
+        });
+
         views.forEach((view) => registry.registerLeftHandSidebarItem(view.title, view.id, () => (
             <View
                 id={view.id}
-                title={view.title}
-                type={view.type}
-                query={view.query}
-                format={view.format}
             />
         )));
     }
