@@ -62,7 +62,8 @@ const PostAttachment = ({postId}: PostAttachmentProps) => {
                     <PropertyElement
                         key={p.id}
                         id={p.id}
-                        objectId={postId}
+                        objectID={postId}
+                        objectType='post'
                         name={p.property_field_name}
                         type={p.property_field_type}
                         value={p.value}

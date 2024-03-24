@@ -16,6 +16,7 @@ type View struct {
 const (
 	ViewTypeList   = "list"
 	ViewTypeKanban = "kanban"
+	ViewTypeTree   = "tree"
 )
 
 type ViewMember struct {
@@ -33,6 +34,7 @@ type Format struct {
 	Order          []string `json:"order"`
 	GroupByFieldID string   `json:"group_by_field_id"`
 	HiddenValueIDs []string `json:"hidden_value_ids"`
+	RootObjectID   string   `json:"root_object_id"`
 }
 
 type PropertiesList []Property

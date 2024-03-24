@@ -2,16 +2,17 @@
 // See LICENSE.txt for license information.
 
 import React, {useEffect, useState} from 'react';
+import {useDispatch} from 'react-redux';
 import {useIntl} from 'react-intl';
-import ReactSelect, {ControlProps, StylesConfig} from 'react-select';
+import {ControlProps, StylesConfig} from 'react-select';
+import AsyncSelect from 'react-select/async';
+import {Placement} from '@floating-ui/react-dom-interactions';
+import {useUpdateEffect} from 'react-use';
+import styled, {css} from 'styled-components';
 
 import {Post} from '@mattermost/types/posts';
 
-import {Placement} from '@floating-ui/react-dom-interactions';
-
-import {useUpdateEffect} from 'react-use';
-
-import styled, {css} from 'styled-components';
+import {getPost} from 'mattermost-redux/actions/posts';
 
 import Dropdown from 'src/components/dropdown';
 
@@ -35,6 +36,7 @@ interface Props {
     selectedPostID?: string;
     selectedUserID?: string;
     selectedChannelID?: string;
+    excludedPostID?: string;
     placeholder: React.ReactNode;
     placeholderButtonClass?: string;
     postButtonClass?: string;
@@ -92,8 +94,23 @@ export const FilterButton = styled.button<{active?: boolean;}>`
     `}
 `;
 
+const postToOption = (post: Post) => {
+    return {
+        value: post.id,
+        label: (
+            <PostComponent
+                postID={post.id}
+                userID={post.user_id}
+                channelID={post.channel_id}
+            />
+        ),
+        post,
+    } as Option;
+};
+
 export default function PostSelector({selectedPostID, controlledOpenToggle, onOpenChange, getAllPosts, ...props}: Props) {
     const {formatMessage} = useIntl();
+    const dispatch = useDispatch();
 
     const [isOpen, setOpen] = useState(false);
     const toggleOpen = () => {
@@ -122,21 +139,15 @@ export default function PostSelector({selectedPostID, controlledOpenToggle, onOp
     async function fetchPosts() {
         const posts = await getAllPosts();
 
-        const postToOption = (post: Post) => {
-            return {
-                value: post.id,
-                label: (
-                    <PostComponent
-                        postID={post.id}
-                        userID={post.user_id}
-                        channelID={post.channel_id}
-                    />
-                ),
-                post,
-            } as Option;
-        };
-
-        const filteredPosts = posts.filter((p) => !(p.type && (p.type.lastIndexOf('system_') === 0)));
+        const filteredPosts = posts.filter((p) => {
+            if (props.excludedPostID && p.id === props.excludedPostID) {
+                return false;
+            }
+            if (p.type && p.type.lastIndexOf('system_') === 0) {
+                return false;
+            }
+            return true;
+        });
         setPostOptions(filteredPosts.map((p) => postToOption(p)));
     }
 
@@ -244,6 +255,16 @@ export default function PostSelector({selectedPostID, controlledOpenToggle, onOp
         Control: props.customControl,
     } : noDropdown;
 
+    const loadOptions = async (inputValue: string, callback: (options: Option[]) => void) => {
+        if (inputValue.length !== 26) {
+            return;
+        }
+        const {data: searchedPost} = await dispatch(getPost(inputValue));
+        if (searchedPost) {
+            callback([postToOption(searchedPost)]);
+        }
+    };
+
     return (
         <Dropdown
             target={targetWrapped}
@@ -251,7 +272,7 @@ export default function PostSelector({selectedPostID, controlledOpenToggle, onOp
             isOpen={isOpen}
             onOpenChange={setOpen}
         >
-            <ReactSelect
+            <AsyncSelect
                 autoFocus={true}
                 backspaceRemovesValue={false}
                 components={components}
@@ -259,7 +280,8 @@ export default function PostSelector({selectedPostID, controlledOpenToggle, onOp
                 hideSelectedOptions={false}
                 isClearable={props.isClearable}
                 menuIsOpen={true}
-                options={postOptions}
+                loadOptions={loadOptions}
+                defaultOptions={postOptions}
                 placeholder={formatMessage({id: 'enter_post_id', defaultMessage: 'Enter Post ID'})}
                 styles={selectStyles}
                 tabSelectsValue={false}

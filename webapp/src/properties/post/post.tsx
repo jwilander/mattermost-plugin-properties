@@ -126,7 +126,7 @@ const ControlComponent = (ownProps: ControlProps<Option, boolean>) => (
     </div>
 );
 
-const PostProperty = ({value, readOnly, onChange}: PropertyProps) => {
+const PostProperty = ({value, readOnly, onChange, objectID, objectType}: PropertyProps) => {
     // eslint-disable-next-line no-undefined
     const selectedPostID = value.length > 0 ? value[0] : undefined;
 
@@ -149,6 +149,7 @@ const PostProperty = ({value, readOnly, onChange}: PropertyProps) => {
             selectedPostID={selectedPostID}
             selectedUserID={post?.user_id}
             selectedChannelID={post?.channel_id}
+            excludedPostID={objectType === 'post' ? objectID : undefined}
             placeholder={
                 <PlaceholderDiv>
                     <AssignToTextContainer
@@ -166,7 +167,7 @@ const PostProperty = ({value, readOnly, onChange}: PropertyProps) => {
                 return postsInChannel;
             }}
             onSelectedChange={onSelectedChange}
-            selfIsFirstOption={true}
+            selfIsFirstOption={false}
             customControl={ControlComponent}
             customControlProps={{
                 showCustomReset: Boolean(selectedPostID),

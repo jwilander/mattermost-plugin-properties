@@ -14,7 +14,8 @@ import CloseIcon from 'src/widgets/icons/close';
 
 type PropertyProps = {
     id: string;
-    objectId: string;
+    objectID: string;
+    objectType: string;
     name: string;
     type: PropertyTypeEnum;
     value: string[];
@@ -57,7 +58,7 @@ const PropertyName = styled.span`
     color: rgba(var(--center-channel-color-rgb), 0.6);
 `;
 
-const PropertyElement = ({id, objectId, name, type, value, possibleValues}: PropertyProps) => {
+const PropertyElement = ({id, objectID, objectType, name, type, value, possibleValues}: PropertyProps) => {
     const dispatch = useDispatch();
     const [isHover, setHover] = useState(false);
 
@@ -71,7 +72,7 @@ const PropertyElement = ({id, objectId, name, type, value, possibleValues}: Prop
     const onChange = (newValue: string[]) => {
         updatePropertyValue(id, newValue).then(
             () => {
-                dispatch(receivedPropertyValue(id, objectId, newValue));
+                dispatch(receivedPropertyValue(id, objectID, newValue));
             },
         );
     };
@@ -79,7 +80,7 @@ const PropertyElement = ({id, objectId, name, type, value, possibleValues}: Prop
     const onDelete = () => {
         deleteProperty(id).then(
             () => {
-                dispatch(deletedProperty(id, objectId));
+                dispatch(deletedProperty(id, objectID));
             },
         );
     };
@@ -96,6 +97,8 @@ const PropertyElement = ({id, objectId, name, type, value, possibleValues}: Prop
             <PropertyName>{name + ': '}</PropertyName>
             <Editor
                 id={id}
+                objectID={objectID}
+                objectType={objectType}
                 readOnly={readOnly}
                 showEmptyPlaceholder={showEmptyPlaceholder}
                 value={value}

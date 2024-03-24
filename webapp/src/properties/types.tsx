@@ -7,6 +7,8 @@ import {PropertyTypeEnum} from 'src/types/property';
 
 export type PropertyProps = {
     id: string;
+    objectID: string;
+    objectType: string;
     value: string | string[]
     possibleValues: string[] | null;
     name: string;
