@@ -1,18 +1,21 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, memo} from 'react';
 import {FormattedMessage, useIntl} from 'react-intl';
+import {useSelector} from 'react-redux';
 import styled, {css} from 'styled-components';
 import {ControlProps, components} from 'react-select';
 
-import {UserProfile} from '@mattermost/types/users';
+import {getPost} from 'mattermost-redux/selectors/entities/posts';
+import {GlobalState} from '@mattermost/types/store';
+import {Post} from '@mattermost/types/posts';
 
-import UserSelector from 'src/components/user_selector';
-import {useProfilesInTeam} from 'src/hooks';
+import PostSelector from 'src/components/post_selector';
+import {usePostsInChannel} from 'src/hooks';
 import {PropertyProps} from 'src/properties/types';
 
-const StyledUserSelector = styled(UserSelector)`
+const StyledPostSelector = styled(PostSelector)`
     .Assigned-button, .NoAssignee-button, .NoName-Assigned-button {
         display: flex;
         align-items: center;
@@ -115,7 +118,7 @@ const ControlComponent = (ownProps: ControlProps<Option, boolean>) => (
         {ownProps.selectProps.showCustomReset && (
             <ControlComponentAnchor onClick={ownProps.selectProps.onCustomReset}>
                 <FormattedMessage
-                    id='no_user'
+                    id='no_post'
                     defaultMessage='None'
                 />
             </ControlComponentAnchor>
@@ -123,48 +126,51 @@ const ControlComponent = (ownProps: ControlProps<Option, boolean>) => (
     </div>
 );
 
-const UserProperty = (props: PropertyProps) => {
-    const {value, readOnly, onChange} = props;
+const PostProperty = ({value, readOnly, onChange}: PropertyProps) => {
+    // eslint-disable-next-line no-undefined
+    const selectedPostID = value.length > 0 ? value[0] : undefined;
 
     const {formatMessage} = useIntl();
-    const profilesInTeam = useProfilesInTeam();
-    const [profileSelectorToggle, setProfileSelectorToggle] = useState(false);
+    const postsInChannel = usePostsInChannel();
+    const [postSelectorToggle, setPostSelectorToggle] = useState(false);
+    const post = useSelector((state: GlobalState) => getPost(state, selectedPostID));
 
-    const onSelectedChange = useCallback((user?: UserProfile) => onChange(user?.id ? [user.id] : []), [onChange]);
+    const onSelectedChange = useCallback((newPost?: Post) => onChange(newPost?.id ? [newPost.id] : []), [onChange]);
 
-    const resetAssignee = useCallback(() => {
+    const resetSelected = useCallback(() => {
         onChange([]);
-        setProfileSelectorToggle(!profileSelectorToggle);
+        setPostSelectorToggle(!postSelectorToggle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [onChange]);
 
-    const selectedUserId = value.length > 0 ? value[0] : undefined;
-
     return (
-        <StyledUserSelector
-            testId='assignee-profile-selector'
-            selectedUserId={selectedUserId}
+        <StyledPostSelector
+            testId='post-selector'
+            selectedPostID={selectedPostID}
+            selectedUserID={post?.user_id}
+            selectedChannelID={post?.channel_id}
             placeholder={
                 <PlaceholderDiv>
                     <AssignToTextContainer
-                        isPlaceholder={!selectedUserId}
+                        isPlaceholder={!selectedPostID}
                         enableEdit={!readOnly}
                     >
-                        {formatMessage({id: 'no_user', defaultMessage: 'None'})}
+                        {formatMessage({id: 'no_post', defaultMessage: 'None'})}
                     </AssignToTextContainer>
                 </PlaceholderDiv>
             }
             placeholderButtonClass='NoAssignee-button'
-            profileButtonClass='Assigned-button'
+            postButtonClass='Assigned-button'
             enableEdit={!readOnly}
-            getAllUsers={async () => {
-                return profilesInTeam;
+            getAllPosts={async () => {
+                return postsInChannel;
             }}
             onSelectedChange={onSelectedChange}
             selfIsFirstOption={true}
             customControl={ControlComponent}
             customControlProps={{
-                showCustomReset: Boolean(selectedUserId),
-                onCustomReset: resetAssignee,
+                showCustomReset: Boolean(selectedPostID),
+                onCustomReset: resetSelected,
             }}
             customDropdownArrow={<></>}
             placement='bottom-start'
@@ -172,4 +178,4 @@ const UserProperty = (props: PropertyProps) => {
     );
 };
 
-export default React.memo(UserProperty);
+export default memo(PostProperty);

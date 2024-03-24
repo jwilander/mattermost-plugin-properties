@@ -18,10 +18,15 @@ type PropertyFieldFilterOptions struct {
 	PerPage                  int
 }
 
+func (pf *PropertyField) IsTypeValid() bool {
+	return pf.Type == PropertyFieldTypeText || pf.Type == PropertyFieldTypeSelect || pf.Type == PropertyFieldTypeUser || pf.Type == PropertyFieldTypePost
+}
+
 const (
 	PropertyFieldTypeText   = "text"
 	PropertyFieldTypeSelect = "select"
 	PropertyFieldTypeUser   = "user"
+	PropertyFieldTypePost   = "post"
 )
 
 type PropertyFieldStore interface {

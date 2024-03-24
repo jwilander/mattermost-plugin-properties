@@ -67,6 +67,10 @@ const options = [
         label: 'User',
         value: 'user',
     },
+    {
+        label: 'Post',
+        value: 'post',
+    },
 ];
 
 const components = {DropdownIndicator: null, IndicatorSeparator: null};

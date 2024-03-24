@@ -7,6 +7,7 @@ import {PropertyType} from 'src/properties/types';
 import SelectProperty from 'src/properties/select/property';
 import TextProperty from 'src/properties/text/property';
 import UserProperty from 'src/properties/user/property';
+import PostProperty from 'src/properties/post/property';
 import UnknownProperty from 'src/properties/unknown/property';
 
 class PropertiesRegistry {
@@ -37,5 +38,6 @@ const registry = new PropertiesRegistry();
 registry.register(new TextProperty());
 registry.register(new SelectProperty());
 registry.register(new UserProperty());
+registry.register(new PostProperty());
 
 export default registry;
