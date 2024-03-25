@@ -32,13 +32,27 @@ func (ps *propertyService) Create(property Property) (string, error) {
 		property.Value = []interface{}{}
 	}
 
-	// Confirm field exists for property
+	// Confirm field exists
 	_, err := ps.propertyFieldService.Get(property.PropertyFieldID)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			return "", errors.Errorf("Tried to create property with unknown property_field with id: '%s'", property.PropertyFieldID)
+			return "", errors.Errorf("tried to create property with unknown property_field with id=%s", property.PropertyFieldID)
 		}
 		return "", err
+	}
+
+	// Confirm post exists and pull channel/team ids
+	if property.ObjectType == PropertyObjectTypePost {
+		post, err := ps.api.Post.GetPost(property.ObjectID)
+		if err != nil {
+			return "", errors.Wrapf(err, "tried to create property with non-existent post with id=%s", property.ObjectID)
+		}
+		channel, err := ps.api.Channel.Get(post.ChannelId)
+		if err != nil {
+			return "", err
+		}
+		property.ChannelID = channel.Id
+		property.TeamID = channel.TeamId
 	}
 
 	//TODO: validate value for selected field
